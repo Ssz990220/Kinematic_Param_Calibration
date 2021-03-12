@@ -95,14 +95,21 @@ classdef my_poe_robot
 end
 
 function SE3 = se3exp(twist, theta)
-    SO3 = so3exp(twist(4:6),theta);
-    SE3 = [SO3, (eye(3)-SO3)*cross(twist(4:6),twist(1:3))+twist(4:6)*twist(4:6)'*twist(1:3)*theta;
+    omega = twist(4:6);
+    SO3 = so3exp((omega),theta);
+    sk_omega = skew(omega);
+    omega_att = norm(omega);
+    A = eye(3) + (1-cos(omega_att*theta))/omega_att^2*sk_omega + (omega_att - sin(omega_att*theta))/omega_att^3*sk_omega^2;
+%     SE3 = [SO3, (eye(3)-SO3)*cross(twist(4:6),twist(1:3))+twist(4:6)*twist(4:6)'*twist(1:3)*theta;
+%         zeros(1,3),1];
+    SE3 = [SO3,A*twist(1:3);
         zeros(1,3),1];
 end
 
 function SO3 = so3exp(omega, theta)
     sk_omega = skew(omega);
-    SO3 = eye(3)+sk_omega*sin(theta)+sk_omega^2*(1-cos(theta));
+    omega_att = norm(omega);
+    SO3 = eye(3)+sk_omega*sin(theta)/omega_att+sk_omega^2*(1-cos(theta))/omega_att^2;
 end
 
 function sk_v = skew(vector)

@@ -9,6 +9,7 @@ classdef my_poe_robot
         links;
         T_tool;
         g_st0;
+        g_st_poe;
     end
     
     methods
@@ -21,10 +22,12 @@ classdef my_poe_robot
 %             obj.links = cell(obj.n_dof,1);
             obj.links = zeros(6,obj.n_dof); % the robot is represented in n_dof twists
             obj.g_st0 = g_st0;      % inital tool transformation matrix SE3
+            g_st_se3 = logm(g_st0);
+            obj.g_st_poe = [un_skew(g_st_se3(1:3,1:3));g_st_se3(1:3,4)];
             for i = 1:obj.n_dof
 %                 obj.links{i} = Twist('R',obj.poe_omega(:,i),obj.poe_q(:,i));
                 v = -cross(obj.poe_omega(:,i),obj.poe_q(:,i));
-                obj.links(:,i) = [v;obj.poe_omega(:,i)];
+                obj.links(:,i) = [obj.poe_omega(:,i);v];        % [omega, v]'
             end
             obj.T_tool = T_tool;
         end
@@ -48,17 +51,25 @@ classdef my_poe_robot
                 Ad = Ad_X(current_T);
                 if i~= obj.n_dof + 1
                     current_T = current_T * se3exp(obj.links(:,i),pose(i));      %update T
+                    omega_att = norm(obj.poe_omega(:,i));                         %attitude of omega
+                    theta = omega_att * pose(i);
+                    Omega = [skew(obj.poe_omega(:,i)), zeros(3,3);
+                        skew(obj.poe_q(:,i)), skew(obj.poe_omega(:,i))];
+                    A = pose(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
+                        + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
+                        + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
+                        +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
+                    Jacob(:,7*(i-1)+1:7*(i-1)+7) = Ad * [A,[obj.poe_omega(:,i);obj.poe_q(:,i)]];
+                else
+                    omega_att = norm(obj.g_st_poe(4:6));
+                    Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
+                        skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
+                    A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
+                        + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
+                        + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
+                        +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
+                    Jacob(:,7*obj.n_dof+1:7*obj.n_dof+6) = Ad * A;
                 end
-                omega_att = norm(obj.poe_omega(i));                         %attitude of omega
-                theta = omega_att * pose(i);
-                Omega = [skew(obj.poe_omega(i)), zeros(3,3);
-                        skew(obj.poe_a(i)), skew(obj.poe_omega(i))];
-                    
-                A = q(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-                    + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-                    + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-                    +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-                Jacob(:,7*(i-1)+1:7*(i-1)+7) = Ad * [A,[obj.poe_omega(i);obj.poe_a(i)]];
             end
         end
     end
@@ -95,27 +106,32 @@ classdef my_poe_robot
 end
 
 function SE3 = se3exp(twist, theta)
-    omega = twist(4:6);
+    omega = twist(1:3);
     SO3 = so3exp((omega),theta);
     sk_omega = skew(omega);
     omega_att = norm(omega);
     A = eye(3) + (1-cos(omega_att*theta))/omega_att^2*sk_omega + (omega_att - sin(omega_att*theta))/omega_att^3*sk_omega^2;
 %     SE3 = [SO3, (eye(3)-SO3)*cross(twist(4:6),twist(1:3))+twist(4:6)*twist(4:6)'*twist(1:3)*theta;
 %         zeros(1,3),1];
-    SE3 = [SO3,A*twist(1:3);
+    SE3 = [SO3,A*twist(4:6);
         zeros(1,3),1];
 end
 
 function SO3 = so3exp(omega, theta)
-    sk_omega = skew(omega);
-    omega_att = norm(omega);
-    SO3 = eye(3)+sk_omega*sin(theta)/omega_att+sk_omega^2*(1-cos(theta))/omega_att^2;
+%     sk_omega = skew(omega);
+%     omega_att = norm(omega);
+%     SO3 = eye(3)+sk_omega*sin(theta)/omega_att+sk_omega^2*(1-cos(theta))/omega_att^2;
+    SO3 = expm(skew(omega)*theta);
 end
 
 function sk_v = skew(vector)
     sk_v = [0 -vector(3), vector(2);
             vector(3),0,-vector(1);
             -vector(2),vector(1),0];
+end
+
+function so3 = un_skew(SO3)
+    so3 = [-SO3(2,3),SO3(1,3),-SO3(1,2)]';
 end
 
 % function SE3_inv = inv_SE3(target)

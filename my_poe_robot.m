@@ -138,6 +138,17 @@ end
 % SE3_inv = [target(1:3,1:3)',-target(1:3,1:3)'*target(1:3,4);
 %                         zeros(1,3),1];
 % end
+function se3 = log(SE3)
+    theta = SE3(1:3,1:3);
+    b = SE3(1:3,4);
+    phi = acos(trace(theta)-1)/2;
+    sk_omega = phi/(2*sin(phi))*(theta-theta');
+    omega = un_skew(sk_omega);
+    norm_omega = norm(omega);
+    A_inv = eye(3) - 1/2*sk_omega + (2*sin(norm_omega) - norm_omega*(1+cos(norm_omega)))/(2*norm_omega^2*sin(norm_omega));
+    se3 = [sk_omega,A_inv * b;
+        zeors(1,4)];
+end
 
 function Ad = Ad_X(SE3)
 % Convert SE3 matrix to a 6 by 6 adjoint matrix

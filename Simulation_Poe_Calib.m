@@ -8,11 +8,19 @@ link5 = Link('d',0,'a',0,'alpha',pi/2);
 link6 = Link('d',135,'a',0,'alpha',0);
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
-robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
+robot = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
 load('abb_4600_param_poe.mat');
 g_st0 = [0,0,1,1270;
         0,-1,0,0;
         1,0,0,1570;
         0,0,0,1];
 robot_poe = my_poe_robot(z,q,g_st0,Tool);
-
+T0 = [eye(3),[500,0,200]';
+            zeros(1,3),1];
+dis =  50 * ones(6,1);
+direction = [1,0,0]';
+measure_per_point = 1;
+n_points = 7;
+r = 200;
+[Ts, T_holes, p_measures] = gen_poe_cal_pos_sim(T0, direction, dis, measure_per_point, n_points, r);
+qs = robot.ikine(Ts);   % n_points by 6

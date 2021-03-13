@@ -14,8 +14,12 @@ function Ts = gen_poe_cal_pos(T0, direction, distance_hole, measure_per_point, n
 %   Return: Ts, n_points*measure_pre_point by SE3. The spacial position for
 %   each measurement.
     angle_y = 60/180*pi;
-    angle_z_idx = 0:1:measure_per_point-1;
-    angle_z = (-60+120/(measure_per_point-1)*angle_z_idx)/180*pi;
+    if measure_per_point ~= 1
+        angle_z_idx = 0:1:measure_per_point-1;
+        angle_z = (-60+120/(measure_per_point-1)*angle_z_idx)/180*pi;
+    else
+        angle_z = 0;
+    end
     T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
         0,1,0,0;
         -sin(alpha_y),0,cos(alpha_y),0;

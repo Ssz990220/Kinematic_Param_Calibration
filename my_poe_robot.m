@@ -72,6 +72,10 @@ classdef my_poe_robot
                 end
             end
         end
+        
+        function update_poe(obj,delta_poe)
+            
+        end
     end
         
 %         function q = ikine(obj, target)

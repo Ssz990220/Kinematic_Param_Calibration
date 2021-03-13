@@ -7,9 +7,18 @@ link6 = Link('d',135,'a',0,'alpha',0);
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
 robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
+robot_with_tool.plot(zeros(1,6));
 robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
 robot_with_tool.plot(zeros(1,6));
-Object_T = [eye(3),[500,0,0]';
+Object_T = [eye(3),[1000,0,500]';
             zeros(1,3),1];
 Ts = gen_eye_calibration_pos(Object_T, 200, 2, 4);
-qs = robot.ikine(Ts);
+qs = robot_with_tool.ikine(Ts);
+
+Ts_without_tool = robot_without_tool.fkine(qs);
+% for i=1:size(qs,1)
+%     robot.plot(qs(i,:));
+%     pause(2);
+% end
+
+hand_eye_calibration(Ts_without_tool, 

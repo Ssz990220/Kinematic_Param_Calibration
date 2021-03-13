@@ -12,7 +12,8 @@ g_st0 = [0,0,1,1270;
         1,0,0,1570;
         0,0,0,1];
 robot_poe = my_poe_robot(z,q,g_st0,T_tool);
-pose = [0,0.2,0.3,0,0,0];
-robot.plot(pose);
-robot.fkine(pose)
-robot_poe.fkine(pose)
+pose = rand(1,6);
+% robot.plot(pose);
+T1 = robot.fkine(pose).double();
+T2 = robot_poe.fkine(pose);
+norm(T1-T2)

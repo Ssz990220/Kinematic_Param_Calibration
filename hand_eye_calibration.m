@@ -1,5 +1,6 @@
 function H = hand_eye_calibration(Ts,p_measure)
     %EYE_CALIBRATION Hand-eye parameter Calibration
+    % Reference: A Self-Calibration Method for Robotic Measurement System
     % The return matrix H is an SE(3)
     % param: robot is a robot class that could execute motion and solve fkine &
     % ikine
@@ -21,32 +22,40 @@ function H = hand_eye_calibration(Ts,p_measure)
     o  = optimvar('o',3,1);
     a  = optimvar('a',3,1);
     p_H = optimvar('p',3,1);
-    x0 = struct('n',n0,'o',o0,'a',a0,'p',p0);
+    n0 = [1,0,0]';
+    o0 = [0,1,0]';
+    a0 = [0,0,1]';
+    p_H0 = [0,0,0]';
+    x0 = struct('n',n0,'o',o0,'a',a0','p',p_H0);
     % constraints
-    constraint(1) = n.*n ==1;
-    constraint(2) = a.*a ==1;
-    constraint(3) = o.*o ==1;
-    constraint(4) = a.*n ==0;
-    constraint(5) = n.*o ==0;
-    constraint(6) = o.*a ==1;
+%     constraint = optimconstr(6);
+    constraint(1) = n'*n ==1;
+    constraint(2) = a'*a ==1;
+    constraint(3) = o'*o ==1;
+    constraint(4) = a'*n ==0;
+    constraint(5) = n'*o ==0;
+    constraint(6) = o'*a ==0;
 
     R_H = [n o a];
     P_R = optimexpr(3,n_sample);
-    for i=1:n_samples
+    for i=1:n_sample
         T_N = Ts(:,:,i);
         P = p_measure(:,i);
         R_N = T_N(1:3,1:3);
-        P_R(:,i)=R_N*R_H*P+R_N*p_H;
+        P_N = T_N(1:3,4);
+        P_R(:,i)=R_N*R_H*P+R_N*p_H + P_N;
     end
     
     E = optimexpr(1);
-    for i=1:n_samples
-        for j=(i+1):n_samples
+    for i=1:n_sample
+        for j=(i+1):n_sample
             E = E + (P_R(:,i)-P_R(:,j)).'*(P_R(:,i)-P_R(:,j));
         end
     end
     
     prob = optimproblem('Objective', E,'Constraints',constraint);
+    options = optimoptions(prob);
+    options.OptimalityTolerance = 1e-8;
     tic;
     sol = solve(prob,x0);
     toc;

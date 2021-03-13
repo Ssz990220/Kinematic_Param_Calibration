@@ -1,3 +1,5 @@
+clear;
+clc;
 link1 = Link('d',495,'a',175,'alpha',pi/2);
 link2 = Link('d',0,'a',900,'alpha',0,'offset',pi/2);
 link3 = Link('d',0,'a',175,'alpha',pi/2);
@@ -11,7 +13,7 @@ robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
 % robot_with_tool.plot(zeros(1,6));
 Object_T = [eye(3),[1000,0,500]';
             zeros(1,3),1];
-[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 150, 2, 4);
+[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 170, 2, 4);
 qs = robot_with_tool.ikine(Ts);
 
 Ts_without_tool= robot_without_tool.fkine(qs).double();
@@ -21,3 +23,4 @@ Ts_without_tool= robot_without_tool.fkine(qs).double();
 % end
 
 hand_eye_calibration(Ts_without_tool, p_measure);
+ans

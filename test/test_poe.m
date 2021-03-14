@@ -1,3 +1,5 @@
+addpath('../');
+addpath('../mr');
 a = [1,0,0];
 theta = 0.3;
 

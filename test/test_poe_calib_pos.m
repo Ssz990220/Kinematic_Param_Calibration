@@ -1,9 +1,20 @@
-Object_T = [eye(3),[500,0,200]';
+addpath('../');
+addpath('../mr');
+clear;
+clc;
+T0 = [eye(3),[500,0,200]';
             zeros(1,3),1];
-Ts = gen_eye_calibration_pos(Object_T, 200, 2, 4);
+dis =  50 * ones(6,1);
+direction = [1,0,0]';
+measure_per_point = 3;
+n_points = 7;
+r = 200;
+[Ts, T_holes, p_measures] = gen_poe_cal_pos_sim(T0, direction, dis, measure_per_point, n_points, r);
 figure
 hold on
-draw_arrow_3d(Object_T);
+for i = 1:n_points
+  draw_arrow_3d(T_holes(:,:,i));  
+end
 for i=1:size(Ts,3)
     draw_arrow_3d(Ts(:,:,i));
 end

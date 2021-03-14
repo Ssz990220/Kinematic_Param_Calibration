@@ -17,10 +17,10 @@ Object_T = [eye(3),[1000,0,500]';
 qs = robot_with_tool.ikine(Ts);
 
 Ts_without_tool= robot_without_tool.fkine(qs).double();
-% for i=1:size(qs,1)
-%     robot.plot(qs(i,:));
-%     pause(2);
-% end
+for i=1:size(qs,1)
+    robot_with_tool.plot(qs(i,:));
+    pause(2);
+end
 
 hand_eye_calibration(Ts_without_tool, p_measure);
 ans

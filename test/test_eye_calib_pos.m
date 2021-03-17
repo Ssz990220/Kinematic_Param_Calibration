@@ -1,6 +1,6 @@
 addpath('../');
 addpath('../mr');
-Object_T = [eye(3),[500,0,200]';
+Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
 r = 200;
 Ts = gen_eye_calibration_pos(Object_T, r, 2, 4);

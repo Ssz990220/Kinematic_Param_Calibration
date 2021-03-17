@@ -55,9 +55,11 @@ function H = hand_eye_calibration(Ts,p_measure)
     
     prob = optimproblem('Objective', E,'Constraints',constraint);
     options = optimoptions(prob);
-    options.OptimalityTolerance = 1e-8;
+    options.OptimalityTolerance = 1e-10;
+    options.StepTolerance = 1e-16;
+%     options.Display = 'iter';
     tic;
-    sol = solve(prob,x0);
+    sol = solve(prob,x0,'Options',options);
     toc;
     H = [sol.n, sol.o, sol.a, sol.p;0,0,0,1];
 end

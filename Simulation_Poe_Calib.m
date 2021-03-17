@@ -1,6 +1,27 @@
 clear;
 clc;
 addpath('./mr');
+%%%
+% genenrate POE parameter with noise
+clear;
+clc;
+z = [0 0 1;
+    0 -1 0;
+    0 -1 0;
+    1 0 0;
+    0 -1 0;
+    1 0 0]';
+q = [0 0 0;
+    175 0 495;
+    175 0 1395;
+    175 0 1570;
+    1135 0 1570;
+    1270 0 1570]';
+z_noise = normrnd(0,0.01,size(z));
+q_noise = normrnd(0,5,size(q));
+z_fake = z + z_noise;
+q_fake = q + q_noise;
+%%%
 
 % Prepare robot
 link1 = Link('d',495,'a',175,'alpha',pi/2);
@@ -12,7 +33,6 @@ link6 = Link('d',135,'a',0,'alpha',0);
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
 robot = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
-load('abb_4600_param_poe.mat');
 g_st0 = [0,0,1,1270;
         0,-1,0,0;
         1,0,0,1570;

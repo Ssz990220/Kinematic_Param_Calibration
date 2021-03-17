@@ -11,7 +11,7 @@ Tool = [eye(3),[0,0,100]';
 robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
 robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
 % robot_with_tool.plot(zeros(1,6));
-Object_T = [eye(3),[1000,0,500]';
+Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
 [Ts,p_measure] = gen_eye_calibration_sim(Object_T, 170, 2, 4);
 qs = robot_with_tool.ikine(Ts);

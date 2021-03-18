@@ -17,7 +17,7 @@ T_z = @(alpha_z)[cos(alpha_z),-sin(alpha_z),0,0;
         0,0,0,1];
 R = T_y(20/180*pi) * T_z(45/180*pi);
 R = R(1:3,1:3);
-Tool = [eye(3),[10,0,100]';
+Tool = [R,[10,10,100]';
         zeros(1,3),1];
 robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
 robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
@@ -25,7 +25,7 @@ robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
 % ball_pos = load('ball_pos.mat');
 Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
-[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 10, 3, 12);
+[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 10, 3, 4);
 qs = robot_with_tool.ikine(Ts);
 %%
 % Generate joint angle for ABB

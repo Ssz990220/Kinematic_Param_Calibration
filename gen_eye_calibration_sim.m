@@ -5,8 +5,8 @@ function [Ts,q] = gen_eye_calibration_sim(T0, r, n_row, n_column)
 %   r is the camera visual distance
 %   Ry, Rz is two angle.
 %   n_pose tells the program how many poses to generate
-    y_range =15;
-    z_range = 120;
+%     y_range =15;
+%     z_range = 120;
     angle_y_idx = 0:1:n_row-1;
     angle_y = (45+(60-45)/(n_row-1)*angle_y_idx)/180*pi;
     angle_z_idx = 0:1:n_column-1;

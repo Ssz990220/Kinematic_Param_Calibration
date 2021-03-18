@@ -25,7 +25,7 @@ function H = hand_eye_calibration(Ts,p_measure)
     n0 = [1,0,0]';
     o0 = [0,1,0]';
     a0 = [0,0,1]';
-    p_H0 = [0,0,0]';
+    p_H0 = [0,0,100]';
     x0 = struct('n',n0,'o',o0,'a',a0','p',p_H0);
     % constraints
 %     constraint = optimconstr(6);
@@ -49,15 +49,17 @@ function H = hand_eye_calibration(Ts,p_measure)
     E = optimexpr(1);
     for i=1:n_sample
         for j=(i+1):n_sample
-            E = E + (P_R(:,i)-P_R(:,j)).'*(P_R(:,i)-P_R(:,j));
+            E = E + (P_R(:,i)-P_R(:,j))'*(P_R(:,i)-P_R(:,j));
         end
     end
+    E = E/n_sample;
     
     prob = optimproblem('Objective', E,'Constraints',constraint);
     options = optimoptions(prob);
-    options.OptimalityTolerance = 1e-10;
-    options.StepTolerance = 1e-16;
-%     options.Display = 'iter';
+    options.MaxFunctionEvaluations = 10000;
+    options.OptimalityTolerance = 1e-12;
+    options.StepTolerance = 1e-32;
+    options.Display = 'iter';
     tic;
     sol = solve(prob,x0,'Options',options);
     toc;

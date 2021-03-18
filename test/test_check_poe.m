@@ -8,11 +8,13 @@ link3 = Link('d',0,'a',175,'alpha',pi/2);
 link4 = Link('d',960,'a',0,'alpha',-pi/2);
 link5 = Link('d',0,'a',0,'alpha',pi/2);
 link6 = Link('d',135,'a',0,'alpha',0);
-Tool = [eye(3),[0,0,100]';
+Tool = [eye(3),[0,0,0]';
         zeros(1,3),1];
 robot = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
-robot.plot([0,0,0,0,0,pi/4]);
+% robot.plot([0,0,0,0,0,pi/4]);
 
+% pose = [10,-10,-10,10,-10,10]/180*pi;
+% robot.fkine(pose)
 load('abb_4600_param_poe.mat');
 g_st0 = [0,0,1,1270;
         0,-1,0,0;

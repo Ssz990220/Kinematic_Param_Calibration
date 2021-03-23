@@ -5,7 +5,7 @@ function [calibration_done, error, delta_poe] = kinematic_calibration_poe(robot_
 %   This is a hybird method of the two paper mentioned above.
 %   Param:
 x_measure = zeros(3,n_points);
-J = zeros(3,7*robot_poe.n_dof+6,n_points);
+J = zeros(3,6*robot_poe.n_dof,n_points);
 for i = 1:n_points
     T = robot_poe.fkine(qs(i,:));
     x_coor4 = T*[p_measure(:,i);1];
@@ -14,7 +14,7 @@ for i = 1:n_points
     J(:,:,i) = J_full(4:6,:);
 end
 Delta_x = zeros(n_points*(n_points-1)/2,1);
-G = zeros(n_points*(n_points-1)/2,7*robot_poe.n_dof+6);
+G = zeros(n_points*(n_points-1)/2,6*robot_poe.n_dof);
 base_idx = 0;
 for i = 1:n_points
     for j = i+1 : n_points
@@ -24,8 +24,8 @@ for i = 1:n_points
     end
     base_idx = base_idx + n_points - i;
 end
-delta_poe = pinv(G)*Delta_x;
-% delta_poe = (G'*G)\(G'*Delta_x);
+% delta_poe = pinv(G)*Delta_x;
+delta_poe = (G'*G)\(G'*Delta_x);
 error = norm(Delta_x);
 if error<thershold
     calibration_done = true;

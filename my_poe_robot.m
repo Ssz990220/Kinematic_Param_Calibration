@@ -56,50 +56,50 @@ classdef my_poe_robot < handle
         
         function Jacob = get_J(obj, pose)
             current_T = eye(4);
-            Jacob = zeros(6, 7*obj.n_dof + 6);
-            for i = 1:obj.n_dof + 1
+            Jacob = zeros(6, 6*obj.n_dof);
+            for i = 1:obj.n_dof
                 Ad = Ad_X(current_T);
-                if i~= obj.n_dof + 1
-                    current_T = current_T * se3exp(obj.links(:,i),pose(i));      %update T
-                    omega_att = norm(obj.poe_omega(:,i));                         %attitude of omega
-                    theta = omega_att * pose(i);
-                    Omega = [skew(obj.poe_omega(:,i)), zeros(3,3);
-                        skew(obj.poe_q(:,i)), skew(obj.poe_omega(:,i))];
-                    A = pose(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-                        + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-                        + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-                        +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-                    Jacob(:,7*(i-1)+1:7*(i-1)+7) = Ad * [A,[obj.poe_omega(:,i);obj.poe_q(:,i)]];
-                else
-                    omega_att = norm(obj.g_st_poe(4:6));
-                    Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
-                        skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
-                    A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-                        + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-                        + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-                        +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-                    Jacob(:,7*obj.n_dof+1:7*obj.n_dof+6) = Ad * A;
-                end
+%                 if i~= obj.n_dof + 1
+                current_T = current_T * se3exp(obj.links(:,i),pose(i));      %update T
+                omega_att = norm(obj.poe_omega(:,i));                         %attitude of omega
+                theta = omega_att * pose(i);
+                Omega = [skew(obj.links(1:3,i)), zeros(3,3);
+                    skew(obj.links(4:6,i)), skew(obj.links(1:3,i))];
+                A = pose(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
+                    + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
+                    + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
+                    +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
+                Jacob(:,6*(i-1)+1:6*i) = Ad * A;
+%                 else
+%                     omega_att = norm(obj.g_st_poe(4:6));
+%                     Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
+%                         skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
+%                     A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
+%                         + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
+%                         + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
+%                         +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
+%                     Jacob(:,7*obj.n_dof+1:7*obj.n_dof+6) = Ad * A;
+%                 end
             end
         end
         
         function obj = update_poe(obj,delta_poe)
             delta_poe_kine = zeros(size(obj.links));
             for i = 1:obj.n_dof
-               delta_poe_kine(:,i) = delta_poe(7*(i-1)+1:7*(i-1)+6); 
+               delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*(i-1)+6); 
             end
-            delta_poe_st  = delta_poe(7*obj.n_dof+1:7*obj.n_dof+6);
-            links = obj.links + delta_poe_kine;
+%             delta_poe_st  = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
+            cur_links = obj.links + delta_poe_kine;
             for i = 1:obj.n_dof
-                links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
+                cur_links(1:3,i) = cur_links(1:3,i)/norm(cur_links(1:3,i));
             end
             for i = 1:obj.n_dof
-                links(4:6,i) = links(4:6,i) - links(1:3,i)'*links(4:6,i)/(links(1:3,i)'*links(1:3,i))*links(1:3,i);
+                cur_links(4:6,i) = cur_links(4:6,i) - (cur_links(1:3,i)'*cur_links(4:6,i))/(cur_links(1:3,i)'*cur_links(1:3,i))*cur_links(1:3,i);
             end
-            obj.links = links;
-            obj.g_st_poe = obj.g_st_poe + delta_poe_st;
-            obj.g_st_poe(1:3) = obj.g_st_poe(1:3)/norm(obj.g_st_poe(1:3));
-            obj.g_st_poe(4:6) = obj.g_st_poe(4:6)-obj.g_st_poe(1:3)'*obj.g_st_poe(4:6)/(obj.g_st_poe(1:3)'*obj.g_st_poe(1:3))*obj.g_st_poe(1:3);
+            obj.links = cur_links;
+%             obj.g_st_poe = obj.g_st_poe + delta_poe_st;
+%             obj.g_st_poe(1:3) = obj.g_st_poe(1:3)/norm(obj.g_st_poe(1:3));
+%             obj.g_st_poe(4:6) = obj.g_st_poe(4:6)-obj.g_st_poe(1:3)'*obj.g_st_poe(4:6)/(obj.g_st_poe(1:3)'*obj.g_st_poe(1:3))*obj.g_st_poe(1:3);
         end
     end
         

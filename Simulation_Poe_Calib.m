@@ -71,7 +71,7 @@ while ~calibration_done
     %% Debug
     delta_poe_kine = zeros(size(robot_poe.links));
     for i = 1:robot_poe.n_dof
-        delta_poe_kine(:,i) = delta_poe(7*(i-1)+1:7*(i-1)+6); 
+        delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
     end
     %% Continue
     robot_poe.update_poe(delta_poe);

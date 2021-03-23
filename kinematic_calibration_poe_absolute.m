@@ -5,13 +5,14 @@ function [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolu
 %   This is a hybird method of the two paper mentioned above.
 %   Param:
 delta_gg6 = zeros([6*n_points,1]);
-Jacob = zeros([6*n_points,robot_poe.n_dof*7+6]);
+Jacob = zeros([6*n_points,robot_poe.n_dof*6]);
 for i = 1:n_points
     delta_gg = MatrixLog6(Ts_true(:,:,i)*TransInv(Ts_nominal(:,:,i)));
     delta_gg6((i-1)*6+1:i*6) = se3ToVec(delta_gg);
     Jacob((i-1)*6+1:i*6,:) = robot_poe.get_J(qs(i,:));
 end
-delta_poe = pinv(Jacob)*delta_gg6;
+% delta_poe = pinv(Jacob)*delta_gg6;
+delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);
 error = norm(delta_poe);
 if error<threshold
     calibration_done = true;

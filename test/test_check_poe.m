@@ -33,7 +33,9 @@ g_st0 = [0,0,1,1270;
         1,0,0,1570;
         0,0,0,1];
 robot_poe = my_poe_robot(z,q,g_st0,Tool);
-robot_poe.links(1:3,1) = [0,0,2]';
+for i = 1:robot_poe.n_dof
+    robot_poe.links(1:3,i) = robot_poe.links(1:3,i)*i;
+end
 pose = rand(1,6);
 % q = zeros(1,6);
 % robot.plot(q);

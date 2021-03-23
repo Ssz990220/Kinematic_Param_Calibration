@@ -32,7 +32,7 @@ g_st0 = [0,0,1,1270;
         0,0,0,1];
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(z_fake,q_fake,g_st0,Tool);
+robot_poe = my_poe_robot(z,q,g_st0,Tool);
 %% Prepare real robot
 link1 = Link('d',495,'a',175,'alpha',pi/2);
 link2 = Link('d',0,'a',900,'alpha',0,'offset',pi/2);
@@ -66,6 +66,7 @@ while ~calibration_done
     for i = 1:n_points
         Ts_nominal(:,:,i) = robot_poe.fkine(angle_list(i,:));
     end
+    norm(mean(Ts_true - Ts_nominal,3))
     [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, threshold);
 
     %% Debug

@@ -1,5 +1,5 @@
-function [Ts,p_measure, qs] = gen_eye_calibration_sim(T0, r, n_row, n_column)
-%GEN_EYE_CALIBRATION_POS 此处显示有关此函数的摘要
+function [Ts,p_measure] = gen_eye_calibration_sim(T0, r, n_row, n_column)
+%GEN_EYE_CALIBRATION_POS
 %   Generate camera position for eye calibration.
 %   T0 is SE3 for the ball in world frame.
 %   r is the camera visual distance

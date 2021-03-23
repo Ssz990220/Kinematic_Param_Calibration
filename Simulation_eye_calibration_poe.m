@@ -20,12 +20,31 @@ R = R(1:3,1:3);
 Tool = [R,[10,10,100]';
         zeros(1,3),1];
 robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
-robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
+z = [0 0 1;
+    0 -1 0;
+    0 -1 0;
+    1 0 0;
+    0 -1 0;
+    1 0 0]';
+q = [0 0 0;
+    175 0 495;
+    175 0 1395;
+    175 0 1570;
+    1135 0 1570;
+    1270 0 1570]';
+g_st0 = [0,0,1,1270;
+        0,-1,0,0;
+        1,0,0,1570;
+        0,0,0,1];
+Tool_poe = eye(4);
+robot_without_tool = my_poe_robot(z, q, g_st0, Tool_poe);
 % robot_with_tool.plot(zeros(1,6));
 % ball_pos = load('ball_pos.mat');
 Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
-[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 10, 2, 4);
+r = 2;
+c = 4;
+[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 10, r, c);
 qs = robot_with_tool.ikine(Ts);
 %%
 % Generate joint angle for ABB
@@ -37,7 +56,10 @@ qs = robot_with_tool.ikine(Ts);
 
 %%
 % Solve
-Ts_without_tool= robot_without_tool.fkine(qs).double();
+Ts_without_tool = zeros(size(Ts));
+for i = 1:r*c
+    Ts_without_tool(:,:,i) = robot_without_tool.fkine(qs(i,:));
+end
 % for i=1:size(qs,1)
 %     robot_with_tool.plot(qs(i,:));
 %     pause(2);
@@ -64,3 +86,6 @@ for i=1:n_sample
         E = E + (P_R(:,i)-P_R(:,j))'*(P_R(:,i)-P_R(:,j));
     end
 end
+E
+R
+T+tool

@@ -25,7 +25,7 @@ function H = hand_eye_calibration(Ts,p_measure)
     n0 = [1,0,0]';
     o0 = [0,1,0]';
     a0 = [0,0,1]';
-    p_H0 = [0,0,100]';
+    p_H0 = [0,0,0]';
     x0 = struct('n',n0,'o',o0,'a',a0','p',p_H0);
     % constraints
 %     constraint = optimconstr(6);

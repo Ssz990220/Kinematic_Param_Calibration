@@ -15,12 +15,25 @@ robot = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
 
 % pose = [10,-10,-10,10,-10,10]/180*pi;
 % robot.fkine(pose)
-load('abb_4600_param_poe.mat');
+% load('abb_4600_param_poe.mat');
+z = [0 0 1;
+    0 -1 0;
+    0 -1 0;
+    1 0 0;
+    0 -1 0;
+    1 0 0]';
+q = [0 0 0;
+    175 0 495;
+    175 0 1395;
+    175 0 1570;
+    1135 0 1570;
+    1270 0 1570]';
 g_st0 = [0,0,1,1270;
         0,-1,0,0;
         1,0,0,1570;
         0,0,0,1];
 robot_poe = my_poe_robot(z,q,g_st0,Tool);
+robot_poe.links(1:3,1) = [0,0,2]';
 pose = rand(1,6);
 % q = zeros(1,6);
 % robot.plot(q);

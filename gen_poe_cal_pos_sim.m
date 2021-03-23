@@ -43,8 +43,10 @@ function [Ts, T_holes, p_measures] = gen_poe_cal_pos_sim(T0, direction, distance
     for i = 1:n_points
         for j = 1:measure_per_point
             rotation_z = T_z(angle_z(j));
-            Ts(:,:,(i-1)*measure_per_point + j) = T_current_hole*rotation_y*rotation_z*T_x*T_add;
-            p_measures(:,(i-1)*measure_per_point + j) = [0,0,r]';
+            pos_shift = randi([-10,10],3,1);
+            T_tran = [eye(3),pos_shift;zeros(1,3),1];
+            Ts(:,:,(i-1)*measure_per_point + j) = T_current_hole*rotation_y*rotation_z*T_x*T_add*T_tran;
+            p_measures(:,(i-1)*measure_per_point + j) = [0,0,r]'- pos_shift;
         end
         if i ~= n_points
             T_current_hole = T_current_hole*T_x_hole(distance_hole(i));

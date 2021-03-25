@@ -1,4 +1,4 @@
-function [Ts,p_measure] = gen_eye_calibration_sim(T0, r, n_row, n_column)
+function [Ts,p_measure] = gen_eye_calibration_sim(T0, r, n_row, n_column, z_angle,shift_level)
 %GEN_EYE_CALIBRATION_POS
 %   Generate camera position for eye calibration.
 %   T0 is SE3 for the ball in world frame.
@@ -10,7 +10,7 @@ function [Ts,p_measure] = gen_eye_calibration_sim(T0, r, n_row, n_column)
     angle_y_idx = 0:1:n_row-1;
     angle_y = (45+(60-45)/(n_row-1)*angle_y_idx)/180*pi;
     angle_z_idx = 0:1:n_column-1;
-    angle_z = (-60+120/(n_column-1)*angle_z_idx)/180*pi;
+    angle_z = (-z_angle+z_angle*2/(n_column-1)*angle_z_idx)/180*pi;
     T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
         0,1,0,0;
         -sin(alpha_y),0,cos(alpha_y),0;
@@ -28,7 +28,8 @@ function [Ts,p_measure] = gen_eye_calibration_sim(T0, r, n_row, n_column)
         rotation_y = T_y(angle_y(i));
         for j = 1:n_column
             rotation_z = T_z(angle_z(j));
-            pos_shift = randi([-10,10],3,1);
+            pos_shift = (rand([3,1]) - 0.5)*2*shift_level;
+%             pos_shift = [1,1,1]';
             T_tran = [eye(3),pos_shift;zeros(1,3),1];
             Ts(:,:,(i-1)*n_column + j)=T0*rotation_y*rotation_z*T_x*T_add*T_tran;
             p_measure(:,(i-1)*n_column + j) = [0,0,r]'- pos_shift;

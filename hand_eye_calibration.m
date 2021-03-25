@@ -1,4 +1,4 @@
-function H = hand_eye_calibration(Ts,p_measure)
+function H = hand_eye_calibration(Ts,p_measure, init)
     %EYE_CALIBRATION Hand-eye parameter Calibration
     % Reference: A Self-Calibration Method for Robotic Measurement System
     % The return matrix H is an SE(3)
@@ -22,10 +22,10 @@ function H = hand_eye_calibration(Ts,p_measure)
     o  = optimvar('o',3,1);
     a  = optimvar('a',3,1);
     p_H = optimvar('p',3,1);
-    n0 = [1,0,0]';
-    o0 = [0,1,0]';
-    a0 = [0,0,1]';
-    p_H0 = [0,0,0]';
+    n0 = init(1:3,1);
+    o0 = init(1:3,2);
+    a0 = init(1:3,3);
+    p_H0 = init(1:3,4);
     x0 = struct('n',n0,'o',o0,'a',a0','p',p_H0);
     % constraints
 %     constraint = optimconstr(6);

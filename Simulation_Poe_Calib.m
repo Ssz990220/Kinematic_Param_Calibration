@@ -69,10 +69,10 @@ while ~calibration_done
     % Calibrating
     [calibration_done, error, delta_poe] = kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, n_points, threshold);
     %% Debug
-    delta_poe_kine = zeros(size(robot_poe.links));
-    for i = 1:robot_poe.n_dof
-        delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
-    end
+%     delta_poe_kine = zeros(size(robot_poe.links));
+%     for i = 1:robot_poe.n_dof
+%         delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
+%     end
     %% Continue
     robot_poe.update_poe(delta_poe);
     time = toc;

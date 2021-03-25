@@ -11,8 +11,8 @@ for i = 1:n_points
     delta_gg6((i-1)*6+1:i*6) = se3ToVec(delta_gg);
     Jacob((i-1)*6+1:i*6,:) = robot_poe.get_J(qs(i,:));
 end
-% delta_poe = pinv(Jacob)*delta_gg6;
-delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);
+delta_poe = pinv(Jacob)*delta_gg6;
+% delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);
 error = norm(delta_poe);
 if error<threshold
     calibration_done = true;

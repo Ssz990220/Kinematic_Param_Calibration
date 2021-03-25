@@ -24,9 +24,9 @@ for i = 1:n_points
     end
     base_idx = base_idx + n_points - i;
 end
-% delta_poe = pinv(G)*Delta_x;
-delta_poe = (G'*G)\(G'*Delta_x);
-error = norm(Delta_x);
+delta_poe = pinv(G)*Delta_x;
+% delta_poe = (G'*G)\(G'*Delta_x);
+error = norm(delta_poe);
 if error<thershold
     calibration_done = true;
 else

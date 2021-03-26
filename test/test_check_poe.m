@@ -1,44 +1,15 @@
 clear;
 clc;
-addpath('../');
-addpath('../mr');
-link1 = Link('d',495,'a',175,'alpha',pi/2);
-link2 = Link('d',0,'a',900,'alpha',0,'offset',pi/2);
-link3 = Link('d',0,'a',175,'alpha',pi/2);
-link4 = Link('d',960,'a',0,'alpha',-pi/2);
-link5 = Link('d',0,'a',0,'alpha',pi/2);
-link6 = Link('d',135,'a',0,'alpha',0);
-Tool = [eye(3),[0,0,0]';
-        zeros(1,3),1];
-robot = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
-% robot.plot([0,0,0,0,0,pi/4]);
-
-% pose = [10,-10,-10,10,-10,10]/180*pi;
-% robot.fkine(pose)
-% load('abb_4600_param_poe.mat');
-z = [0 0 1;
-    0 -1 0;
-    0 -1 0;
-    1 0 0;
-    0 -1 0;
-    1 0 0]';
-q = [0 0 0;
-    175 0 495;
-    175 0 1395;
-    175 0 1570;
-    1135 0 1570;
-    1270 0 1570]';
-g_st0 = [0,0,1,1270;
-        0,-1,0,0;
-        1,0,0,1570;
-        0,0,0,1];
-robot_poe = my_poe_robot(z,q,g_st0,Tool);
+addpath(genpath('..\'));
+robot = my_new_dh_robot(eye(4));
+robot_poe = my_poe_robot(eye(4));
+%% Denormalize the axis for poe robot to validate algorithm
 for i = 1:robot_poe.n_dof
-    robot_poe.links(1:3,i) = robot_poe.links(1:3,i)*i;
+    robot_poe.links(1:3,i) = robot_poe.links(1:3,i)*i;  
 end
+
+%% Validation
 pose = rand(1,6);
-% q = zeros(1,6);
-% robot.plot(q);
 T1 = robot.fkine(pose).double();
 T2 = robot_poe.fkine(pose);
-norm(T1-T2)
+norm(T1-T2)     % if this goes to 0, it works.

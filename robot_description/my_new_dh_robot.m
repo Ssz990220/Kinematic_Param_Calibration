@@ -1,6 +1,12 @@
 function robot = my_new_dh_robot(tool)
 %MY_DH_ROBOT Summary of this function goes here
 %   Detailed explanation goes here
+if nargin < 1
+    R_ = [-1,0,0;0,1,0;0,0,-1]';
+    % R_ = eye(3);
+    tool= [R_,[0,0,370]';
+            zeros(1,3),1];
+end
 link1 = Link('d',495,'a',175,'alpha',-pi/2);
 link2 = Link('d',0,'a',900,'alpha',0,'offset',-pi/2);
 link3 = Link('d',0,'a',175,'alpha',-pi/2);

@@ -17,10 +17,10 @@ classdef my_poe_robot < handle
             %MY_POE_ROBOT Construct an instance of this class
             %   Detailed explanation goes here
             poe_omega = [0 0 1;
-                    0 -1 0;
-                    0 -1 0;
+                    0 1 0;
+                    0 1 0;
                     1 0 0;
-                    0 -1 0;
+                    0 1 0;
                     1 0 0]';
             poe_q = [0 0 0;
                 175 0 495;
@@ -29,9 +29,22 @@ classdef my_poe_robot < handle
                 1135 0 1570;
                 1270 0 1570]';
             g_st0 = [0,0,1,1270;
-                            0,-1,0,0;
-                            1,0,0,1570;
+                            0,1,0,0;
+                            -1,0,0,1570;
                             0,0,0,1];
+            if nargin == 0              % default parameter
+                R_ = [-1,0,0;0,1,0;0,0,-1]';
+                T_tool= [R_,[0,0,370]';
+                        zeros(1,3),1];
+                add_shift = false;
+                omega_shift_level = 0;
+                q_shift_level = 0;
+            elseif nargin == 1
+                add_shift = false;
+                omega_shift_level = 0;
+                q_shift_level = 0;
+            end
+            
             if add_shift
                 omega_noise = normrnd(0,omega_shift_level,size(poe_omega));
                 q_noise = normrnd(0,q_shift_level,size(poe_q));

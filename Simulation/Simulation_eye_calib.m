@@ -23,7 +23,7 @@ robot_without_tool = my_new_dh_robot(eye(4));
 % ball_pos = load('ball_pos.mat');
 Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
-[Ts,p_measure] = gen_eye_calibration_sim(Object_T, 0, 4, 8,15,1);
+[Ts,p_measure] = gen_eye_calibration_pos(Object_T, 0,4, 8,15,1);
 
 %% Add noise
 noise_level = 0.05;
@@ -39,8 +39,7 @@ qs = robot_with_tool.ikine(Ts);
 %     qs_new((i-1)*2 + 2,:) = qs(i+8,:);
 % end
 
-%%
-% Solve
+%% Solve
 Ts_without_tool= robot_without_tool.fkine(qs).double();
 Ts_noise = zeros(size(Ts_without_tool));
 Ts_noise_level = 0.2;

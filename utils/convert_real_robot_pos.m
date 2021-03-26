@@ -1,6 +1,7 @@
 function Ts = convert_real_robot_pos(last_link_pos)
 %CONVERT_REAL_ROBOT_POS Summary of this function goes here
-%   Detailed explanation goes here
+%   This function convert last joint posture read on the pendant to a
+%   standard SE3 matrix
 Ts = zeros([4,4,size(last_link_pos,1)]);
 for i = 1:size(last_link_pos,1)
     T = last_link_pos(i,1:3);

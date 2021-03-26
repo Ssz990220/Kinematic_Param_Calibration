@@ -1,19 +1,14 @@
 clear;
 clc;
-link1 = Link('d',495,'a',175,'alpha',pi/2);
-link2 = Link('d',0,'a',900,'alpha',0,'offset',pi/2);
-link3 = Link('d',0,'a',175,'alpha',pi/2);
-link4 = Link('d',960,'a',0,'alpha',-pi/2);
-link5 = Link('d',0,'a',0,'alpha',pi/2);
-link6 = Link('d',135,'a',0,'alpha',0);
-T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
-        0,1,0,0;
-        -sin(alpha_y),0,cos(alpha_y),0;
-        0,0,0,1];
-T_z = @(alpha_z)[cos(alpha_z),-sin(alpha_z),0,0;
-        sin(alpha_z),cos(alpha_z),0,0;
-        0,0,1,0;
-        0,0,0,1];
+%% Generate Tool Frame
+% T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
+%         0,1,0,0;
+%         -sin(alpha_y),0,cos(alpha_y),0;
+%         0,0,0,1];
+% T_z = @(alpha_z)[cos(alpha_z),-sin(alpha_z),0,0;
+%         sin(alpha_z),cos(alpha_z),0,0;
+%         0,0,1,0;
+%         0,0,0,1];
 % R = T_y(20/180*pi) * T_z(45/180*pi);
 % R = R(1:3,1:3);
 % Tool = [R,[10,10,100]';
@@ -21,16 +16,20 @@ T_z = @(alpha_z)[cos(alpha_z),-sin(alpha_z),0,0;
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 Tool = [R_,[0,0,370]';
         zeros(1,3),1];
-robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool);
-robot_without_tool = SerialLink([link1, link2, link3, link4, link5, link6]);
+    
+robot_with_tool = my_new_dh_robot(Tool);
+robot_without_tool = my_new_dh_robot(eye(4));
 % robot_with_tool.plot(zeros(1,6));
 % ball_pos = load('ball_pos.mat');
 Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
 [Ts,p_measure] = gen_eye_calibration_sim(Object_T, 0, 4, 8,15,1);
+
+%% Add noise
 noise_level = 0.05;
 p_measure_noise = (rand(size(p_measure))-0.5)*2*noise_level;
 p_measure = p_measure + p_measure_noise;
+%% Generate measuring Pose
 qs = robot_with_tool.ikine(Ts);
 %%
 % Generate joint angle for ABB

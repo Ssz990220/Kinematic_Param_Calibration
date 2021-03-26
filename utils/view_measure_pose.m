@@ -1,9 +1,14 @@
-function view_measure_pose(T,p_measure)
-    scale = 0.01;
-    origin = T(1:3,4);
-    x = T(1:3,1)*scale;
-    y = T(1:3,2)*scale;
-    z = T(1:3,3)*scale;
+function view_measure_pose(Ts,p_measures, scale)
+figure
+hold on
+axis equal
+for i = 1:size(Ts,3)
+    t = Ts(:,:,i);
+    p_measure = p_measures(:,i);
+    origin = t(1:3,4);
+    x = t(1:3,1)*scale;
+    y = t(1:3,2)*scale;
+    z = t(1:3,3)*scale;
     xq = quiver3(origin(1),origin(2),origin(3),x(1),x(2),x(3));
     xq.Color = 'y';
     xq.AutoScale = 'off';
@@ -21,5 +26,6 @@ function view_measure_pose(T,p_measure)
     target.Color = 'c';
     target.AutoScale = 'off';
     target.LineWidth = 2;
+end
 end
 

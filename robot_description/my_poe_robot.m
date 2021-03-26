@@ -13,23 +13,45 @@ classdef my_poe_robot < handle
     end
     
     methods
-        function obj = my_poe_robot(poe_omega, poe_q, g_st0, T_tool)
+        function obj = my_poe_robot(T_tool, add_shift, omega_shift_level, q_shift_level)
             %MY_POE_ROBOT Construct an instance of this class
             %   Detailed explanation goes here
+            poe_omega = [0 0 1;
+                    0 -1 0;
+                    0 -1 0;
+                    1 0 0;
+                    0 -1 0;
+                    1 0 0]';
+            poe_q = [0 0 0;
+                175 0 495;
+                175 0 1395;
+                175 0 1570;
+                1135 0 1570;
+                1270 0 1570]';
+            g_st0 = [0,0,1,1270;
+                            0,-1,0,0;
+                            1,0,0,1570;
+                            0,0,0,1];
+            if add_shift
+                omega_noise = normrnd(0,omega_shift_level,size(poe_omega));
+                q_noise = normrnd(0,q_shift_level,size(poe_q));
+                omega_fake = poe_omega + omega_noise;
+                for i = 1:6
+                    omega_fake(:,i) = omega_fake(:,i)/norm(omega_fake(:,i));
+                end
+                poe_q = poe_q + q_noise;
+            end
             obj.poe_omega = poe_omega;  %  the axis that the joint is rotate about, in 3 by 1
             obj.poe_q = poe_q;      % a point on the axis, or v in prismatic case, in 3 by 1
             obj.n_dof = size(poe_omega,2);
-%             obj.links = cell(obj.n_dof,1);
             obj.links = zeros(6,obj.n_dof); % the robot is represented in n_dof twists
             obj.g_st0 = g_st0;      % inital tool transformation matrix SE3
             g_st_se3 = MatrixLog6(g_st0);
-%             g_st_se3 = log_SE3(g_st0);
             obj.g_st_poe = [un_skew(g_st_se3(1:3,1:3));g_st_se3(1:3,4)];
             for i = 1:obj.n_dof
                 obj.poe_omega(:,i) = poe_omega(:,i)/norm(poe_omega(:,i));
             end
             for i = 1:obj.n_dof
-%                 obj.links{i} = Twist('R',obj.poe_omega(:,i),obj.poe_q(:,i));
                 v = -cross(obj.poe_omega(:,i),obj.poe_q(:,i));
                 obj.links(:,i) = [obj.poe_omega(:,i);v];        % [omega, v]'
             end
@@ -39,7 +61,6 @@ classdef my_poe_robot < handle
         function T = fkine(obj,pose)
             %fkine Summary of this method goes here
             %   Detailed explanation goes here
-            % TODO: How to calculate forward kinematics is norm(omega) ~= 1
             T = eye(4);
             links =obj.links;
             for i = 1:obj.n_dof
@@ -159,7 +180,6 @@ function SO3 = so3exp(omega, theta)
     else
         SO3 = eye(3);
     end
-%     SO3 = expm(skew(omega)*theta);
 end
 
 function sk_v = skew(vector)
@@ -171,27 +191,6 @@ end
 function so3_coor = un_skew(so3)
     so3_coor = [-so3(2,3),so3(1,3),-so3(1,2)]';
 end
-
-% function SE3_inv = inv_SE3(target)
-% SE3_inv = [target(1:3,1:3)',-target(1:3,1:3)'*target(1:3,4);
-%                         zeros(1,3),1];
-% end
-% function se3 = log_SE3(SE3)
-%     theta = SE3(1:3,1:3);
-%     b = SE3(1:3,4);
-%     phi = acos((trace(theta)-1)/2);
-%     sk_omega = phi/(2*sin(phi))*(theta-theta');
-%     omega = un_skew(sk_omega);
-%     norm_omega = norm(omega);
-%     if norm_omega == 0
-%         se3 = [sk_omega, b;
-%                 zeros(1,4)];
-%     else
-%         A_inv = eye(3) - 1/2*sk_omega + (2*sin(norm_omega) - norm_omega*(1+cos(norm_omega)))/(2*norm_omega^2*sin(norm_omega));
-%         se3 = [sk_omega,A_inv * b;
-%         zeros(1,4)];
-%     end
-% end
 
 function Ad = Ad_X(SE3)
 % Convert SE3 matrix to a 6 by 6 adjoint matrix

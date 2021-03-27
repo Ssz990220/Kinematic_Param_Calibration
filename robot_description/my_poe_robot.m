@@ -13,7 +13,7 @@ classdef my_poe_robot < handle
     end
     
     methods
-        function obj = my_poe_robot(T_tool, add_shift, omega_shift_level, q_shift_level)
+        function obj = my_poe_robot(T_tool, add_shift, omega_shift_level, q_shift_level, add_base_shift)
             %MY_POE_ROBOT Construct an instance of this class
             %   Detailed explanation goes here
             poe_omega = [0 0 1;
@@ -69,7 +69,7 @@ classdef my_poe_robot < handle
                 obj.links(:,i) = [obj.poe_omega(:,i);v];        % [omega, v]'
             end
             obj.T_tool = T_tool;
-            if add_shift
+            if add_base_shift
                 g_st_poe_omega_noise = normrnd(0,omega_shift_level, [3,1]);
                 g_st_poe_q_noise = normrnd(0,q_shift_level,[3,1]);
                 g_st_omega_fake = obj.g_st_poe(1:3) + g_st_poe_omega_noise;
@@ -155,10 +155,7 @@ classdef my_poe_robot < handle
                 cur_g_st(1:3) = cur_g_st(1:3)/norm(cur_g_st(1:3));
                 cur_g_st(4:6) = cur_g_st(4:6) - (cur_g_st(1:3)'*cur_g_st(4:6))/(cur_g_st(1:3)'*cur_g_st(1:3))*cur_g_st(1:3);
                 obj.g_st_poe = cur_g_st;
-            end
-%             obj.g_st_poe = obj.g_st_poe + delta_poe_st;
-%             obj.g_st_poe(1:3) = obj.g_st_poe(1:3)/norm(obj.g_st_poe(1:3));
-%             obj.g_st_poe(4:6) = obj.g_st_poe(4:6)-obj.g_st_poe(1:3)'*obj.g_st_poe(4:6)/(obj.g_st_poe(1:3)'*obj.g_st_poe(1:3))*obj.g_st_poe(1:3);
+             end
         end
     end
         
@@ -203,8 +200,6 @@ function SE3 = se3exp(twist, theta)
                 zeros(1,3),1];
     else
         A = eye(3) + (1-cos(omega_att*theta))/omega_att^2*sk_omega + (omega_att - sin(omega_att*theta))/omega_att^3*sk_omega^2;
-        %     SE3 = [SO3, (eye(3)-SO3)*cross(twist(4:6),twist(1:3))+twist(4:6)*twist(4:6)'*twist(1:3)*theta;
-    %         zeros(1,3),1];
         SE3 = [SO3,A*twist(4:6);
             zeros(1,3),1];
     end

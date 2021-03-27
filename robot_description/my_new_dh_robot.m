@@ -3,7 +3,6 @@ function robot = my_new_dh_robot(tool)
 %   Detailed explanation goes here
 if nargin < 1
     R_ = [-1,0,0;0,1,0;0,0,-1]';
-    % R_ = eye(3);
     tool= [R_,[0,0,370]';
             zeros(1,3),1];
 end

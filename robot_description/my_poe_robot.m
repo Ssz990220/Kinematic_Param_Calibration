@@ -89,36 +89,45 @@ classdef my_poe_robot < handle
 %             end
         end
         
-        function Jacob = get_J(obj, pose)
+        function Jacob = get_J(obj, pose, type)
+            % type 1: only joint parameter is calibrated
+            % type 2: joint parameter and g_st0 are all calibrated
             current_T = eye(4);
-            Jacob = zeros(6, 6*obj.n_dof);
+            if type == 1
+                Jacob = zeros(6, 6*obj.n_dof);
+            elseif type == 2
+                Jacob = zeros(6, 6*obj.n_dof+6);
+            end
             for i = 1:obj.n_dof
                 Ad = Ad_X(current_T);
-%                 if i~= obj.n_dof + 1
                 current_T = current_T * se3exp(obj.links(:,i),pose(i));      %update T
-                omega_att = norm(obj.poe_omega(:,i));                         %attitude of omega
+                omega_att = norm(obj.links(1:3,i));                         %attitude of omega
                 theta = omega_att * pose(i);
-                Omega = [skew(obj.links(1:3,i)), zeros(3,3);
+                Omega = [skew(obj.links(1:3,i)), zeros(3,3);                % the big omega is way different from omega
                     skew(obj.links(4:6,i)), skew(obj.links(1:3,i))];
                 A = pose(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
                     +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
                 Jacob(:,6*(i-1)+1:6*i) = Ad * A;
-%                 else
-%                     omega_att = norm(obj.g_st_poe(4:6));
-%                     Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
-%                         skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
-%                     A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-%                         + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-%                         + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-%                         +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-%                     Jacob(:,7*obj.n_dof+1:7*obj.n_dof+6) = Ad * A;
-%                 end
+            end
+            if type == 2
+                Ad = Ad_X(current_T);
+                omega_att = norm(obj.g_st_poe(1:3));
+                theta = omega_att;
+                Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
+                    skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
+                A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
+                    + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
+                    + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
+                    +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
+                Jacob(:,6*obj.n_dof+1:6*obj.n_dof+6) = Ad * A;
             end
         end
         
-        function obj = update_poe(obj,delta_poe)
+        function obj = update_poe(obj,delta_poe, type)
+            % type 1: only joint parameter is calibrated
+            % type 2: joint parameter and g_st0 are all calibrated
             delta_poe_kine = zeros(size(obj.links));
             for i = 1:obj.n_dof
                delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*(i-1)+6); 
@@ -132,6 +141,8 @@ classdef my_poe_robot < handle
                 cur_links(4:6,i) = cur_links(4:6,i) - (cur_links(1:3,i)'*cur_links(4:6,i))/(cur_links(1:3,i)'*cur_links(1:3,i))*cur_links(1:3,i);
             end
             obj.links = cur_links;
+%             if type == 2:
+                
 %             obj.g_st_poe = obj.g_st_poe + delta_poe_st;
 %             obj.g_st_poe(1:3) = obj.g_st_poe(1:3)/norm(obj.g_st_poe(1:3));
 %             obj.g_st_poe(4:6) = obj.g_st_poe(4:6)-obj.g_st_poe(1:3)'*obj.g_st_poe(4:6)/(obj.g_st_poe(1:3)'*obj.g_st_poe(1:3))*obj.g_st_poe(1:3);

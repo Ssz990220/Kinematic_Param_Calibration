@@ -16,6 +16,7 @@ threshold = 1e-11;
 calibration_done = false;
 iter = 1;
 iter_times = 3;
+type = 1;
 
 %% Calibration
 for t = 1:iter_times
@@ -28,7 +29,7 @@ for t = 1:iter_times
             Ts_nominal(:,:,i) = robot_poe.fkine(angle_list(i,:));
         end
         norm(mean(Ts_true - Ts_nominal,3));
-        [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, threshold);
+        [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, threshold, type);
 
         %% Debug
 %         delta_poe_kine = zeros(size(robot_poe.links));
@@ -36,7 +37,7 @@ for t = 1:iter_times
 %             delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
 %         end
         %% Continue
-        robot_poe.update_poe(delta_poe);
+        robot_poe.update_poe(delta_poe, type);
         time = toc;
         fprintf('Iteration %d takes time %.4f, error is %.6f \n',[iter, time, error]);
         iter = iter + 1;

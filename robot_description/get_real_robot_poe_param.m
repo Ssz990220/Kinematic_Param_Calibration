@@ -23,7 +23,7 @@ threshold = 1e-11;
 calibration_done = false;
 iter = 1;
 iter_times = 3;
-
+type = 2;
 %% Calibration
 for t = 1:iter_times
     while ~calibration_done
@@ -32,17 +32,16 @@ for t = 1:iter_times
         for i = 1:n_points
             Ts_nominal(:,:,i) = robot_poe.fkine(angle_list(i,:));
         end
-        [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, threshold);
-
-        %% Debug
-%         delta_poe_kine = zeros(size(robot_poe.links));
-%         for i = 1:robot_poe.n_dof
-%             delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
-%         end
-        %% Continue
-        robot_poe.update_poe(delta_poe);
+        [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, threshold, type);
+        old_links = robot_poe.links;
+        old_gst = robot_poe.g_st_poe;
+        robot_poe.update_poe(delta_poe, type);
         time = toc;
-        fprintf('Iteration %d takes time %.4f, error is %.10f \n',[iter, time, error]);
+        update = max(max(max(abs(old_links - robot_poe.links))), max(old_gst-robot_poe.g_st_poe));
+        fprintf('Iteration %d takes time %.4f, error is %.10f, update is %.10f \n',[iter, time, error, update]);
         iter = iter + 1;
+        if update < 2.5
+            break
+        end
     end
 end

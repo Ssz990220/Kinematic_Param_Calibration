@@ -12,11 +12,11 @@ robot_poe = my_poe_robot(Tool, true, 0.0005,50);
 robot = my_new_dh_robot(Tool);
 %% Calibration Hyperparameter
 n_points = 64;
-threshold = 1e-11;
+threshold = 1e-7;
 calibration_done = false;
 iter = 1;
 iter_times = 3;
-type = 1;
+type = 2;
 
 %% Calibration
 for t = 1:iter_times

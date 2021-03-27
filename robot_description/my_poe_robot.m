@@ -69,6 +69,14 @@ classdef my_poe_robot < handle
                 obj.links(:,i) = [obj.poe_omega(:,i);v];        % [omega, v]'
             end
             obj.T_tool = T_tool;
+            if add_shift
+                g_st_poe_omega_noise = normrnd(0,omega_shift_level, [3,1]);
+                g_st_poe_q_noise = normrnd(0,q_shift_level,[3,1]);
+                g_st_omega_fake = obj.g_st_poe(1:3) + g_st_poe_omega_noise;
+                g_st_omega_fake = g_st_omega_fake/norm(g_st_omega_fake);
+                g_st_poe_q_fake = obj.g_st_poe(4:6) + g_st_poe_q_noise;
+                obj.g_st_poe = [g_st_omega_fake; g_st_poe_q_fake];
+            end
         end
         
         function T = fkine(obj,pose)
@@ -115,8 +123,8 @@ classdef my_poe_robot < handle
                 Ad = Ad_X(current_T);
                 omega_att = norm(obj.g_st_poe(1:3));
                 theta = omega_att;
-                Omega = [skew(obj.g_st_poe(4:6)),zeros(3,3);
-                    skew(obj.g_st_poe(1:3)), skew(obj.g_st_poe(4:6))];
+                Omega = [skew(obj.g_st_poe(1:3)),zeros(3,3);
+                    skew(obj.g_st_poe(4:6)), skew(obj.g_st_poe(1:3))];
                 A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
@@ -130,7 +138,7 @@ classdef my_poe_robot < handle
             % type 2: joint parameter and g_st0 are all calibrated
             delta_poe_kine = zeros(size(obj.links));
             for i = 1:obj.n_dof
-               delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*(i-1)+6); 
+               delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
             end
 %             delta_poe_st  = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
             cur_links = obj.links + delta_poe_kine;
@@ -140,9 +148,14 @@ classdef my_poe_robot < handle
             for i = 1:obj.n_dof
                 cur_links(4:6,i) = cur_links(4:6,i) - (cur_links(1:3,i)'*cur_links(4:6,i))/(cur_links(1:3,i)'*cur_links(1:3,i))*cur_links(1:3,i);
             end
-            obj.links = cur_links;
-%             if type == 2:
-                
+            obj.links = cur_links;  
+             if type == 2
+                delta_g_st0 = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
+                cur_g_st = obj.g_st_poe + delta_g_st0;
+                cur_g_st(1:3) = cur_g_st(1:3)/norm(cur_g_st(1:3));
+                cur_g_st(4:6) = cur_g_st(4:6) - (cur_g_st(1:3)'*cur_g_st(4:6))/(cur_g_st(1:3)'*cur_g_st(1:3))*cur_g_st(1:3);
+                obj.g_st_poe = cur_g_st;
+            end
 %             obj.g_st_poe = obj.g_st_poe + delta_poe_st;
 %             obj.g_st_poe(1:3) = obj.g_st_poe(1:3)/norm(obj.g_st_poe(1:3));
 %             obj.g_st_poe(4:6) = obj.g_st_poe(4:6)-obj.g_st_poe(1:3)'*obj.g_st_poe(4:6)/(obj.g_st_poe(1:3)'*obj.g_st_poe(1:3))*obj.g_st_poe(1:3);

@@ -9,7 +9,7 @@ Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
 robot_poe = my_poe_robot(Tool, true, 0.0005,50);
 %% Prepare real robot
-robot = my_dh_robot(Tool);
+robot = my_new_dh_robot(Tool);
 %% Calibration Hyperparameter
 n_points = 64;
 threshold = 1e-11;

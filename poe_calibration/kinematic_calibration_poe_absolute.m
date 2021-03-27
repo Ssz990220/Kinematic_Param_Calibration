@@ -1,4 +1,4 @@
-function [calibration_done, error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, qs,Ts_true, Ts_nominal,n_points, threshold, type)
+function [error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, qs,Ts_true, Ts_nominal,n_points, type)
 %KINEMATIC_CALIBRATION_POE Summary of this function goes here
 %   Reference: ﻿Kinematic-parameter identification for serial-robot calibration based on POE formula
 %               A Self-Calibration Method for Robotic Measurement System Robot
@@ -23,10 +23,4 @@ end
 delta_poe = pinv(Jacob)*delta_gg6;
 % delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);
 error = norm(delta_poe);
-if error<threshold
-    calibration_done = true;
-else
-    calibration_done = false;
-end
-
 end

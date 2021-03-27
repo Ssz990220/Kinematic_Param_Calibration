@@ -1,4 +1,4 @@
-function H = hand_eye_calibration(Ts,p_measure, init)
+function H = hand_eye_calibration(Ts,p_measure, init, display_mode)
     %EYE_CALIBRATION Hand-eye parameter Calibration
     % Reference: A Self-Calibration Method for Robotic Measurement System
     % The return matrix H is an SE(3)
@@ -15,7 +15,11 @@ function H = hand_eye_calibration(Ts,p_measure, init)
     % where n, o, a, p are all 3*1 vector,
     % with constraints ||a||=1, ||n|| = 1, ||o||=1
     %                               a'*n=0, n'*o=0, o'*a=0;
-    
+    if nargin < 4
+        mode = 'iter';
+    else
+        mode = display_mode;
+    end
     n_sample = size(p_measure, 2);
     % Optimize Variable
     n  = optimvar('n',3,1);
@@ -59,7 +63,7 @@ function H = hand_eye_calibration(Ts,p_measure, init)
     options.MaxFunctionEvaluations = 10000;
     options.OptimalityTolerance = 1e-12;
     options.StepTolerance = 1e-32;
-    options.Display = 'iter';
+    options.Display = mode;
     tic;
     sol = solve(prob,x0,'Options',options);
     toc;

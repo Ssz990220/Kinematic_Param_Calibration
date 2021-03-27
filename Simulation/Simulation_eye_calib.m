@@ -23,11 +23,11 @@ robot_without_tool = my_new_dh_robot(eye(4));
 % ball_pos = load('ball_pos.mat');
 Object_T = [eye(3),[1300,0,1100]';
             zeros(1,3),1];
-[Ts,p_measure] = gen_eye_calibration_pos(Object_T, 0,4, 8,15,1);
+[Ts,p_measure] = gen_eye_calibration_pos(Object_T, 0,2, 4,30,10);
 
 %% Add noise
-noise_level = 0.05;
-p_measure_noise = (rand(size(p_measure))-0.5)*2*noise_level;
+noise_level = 0.1;
+p_measure_noise = normrnd(0,noise_level,size(p_measure));
 p_measure = p_measure + p_measure_noise;
 %% Generate measuring Pose
 qs = robot_with_tool.ikine(Ts);
@@ -42,17 +42,14 @@ qs = robot_with_tool.ikine(Ts);
 %% Solve
 Ts_without_tool= robot_without_tool.fkine(qs).double();
 Ts_noise = zeros(size(Ts_without_tool));
-Ts_noise_level = 0.2;
-Ts_noise(1:3,4,:) = (rand([3,size(Ts_without_tool,3)])-0.5)*2*Ts_noise_level;
+Ts_noise_level = 0.5;
+Ts_noise(1:3,4,:) = normrnd(0,Ts_noise_level, [3,size(Ts_without_tool,3)]);
 Ts_without_tool = Ts_without_tool + Ts_noise;
 % for i=1:size(qs,1)
 %     robot_with_tool.plot(qs(i,:));
 %     pause(2);
 % end
-n_points_used = 8;
-Ts = Ts_without_tool(:,:,1:n_points_used);
-p_measure = p_measure(:,1:n_points_used);
-T_tool = hand_eye_calibration(Ts, p_measure, eye(4));
+T_tool = hand_eye_calibration(Ts_without_tool, p_measure, eye(4));
 
 %% Check results
 % T_tool = [eye(3),[0,0,100]';zeros(1,3),1];

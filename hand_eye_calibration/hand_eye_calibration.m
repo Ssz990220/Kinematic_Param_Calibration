@@ -64,9 +64,9 @@ function H = hand_eye_calibration(Ts,p_measure, init, display_mode)
     options.OptimalityTolerance = 1e-12;
     options.StepTolerance = 1e-32;
     options.Display = mode;
-    tic;
+%     tic;
     sol = solve(prob,x0,'Options',options);
-    toc;
+%     toc;
     H = [sol.n, sol.o, sol.a, sol.p;0,0,0,1];
 end
 

@@ -1,7 +1,17 @@
-function view_measure_pose(Ts,p_measures, scale)
-figure
-hold on
-axis equal
+function view_measure_pose(Ts,p_measures, scale, new_figure)
+if nargin < 4
+    figure
+    hold on
+    axis equal
+else
+    if new_figure
+        figure
+        hold on
+        axis equal
+    else
+        hold on
+    end
+end
 for i = 1:size(Ts,3)
     t = Ts(:,:,i);
     p_measure = p_measures(:,i);

@@ -74,18 +74,19 @@ classdef my_poe_robot < handle
         function T = fkine(obj,pose)
             %fkine Summary of this method goes here
             %   Detailed explanation goes here
-            T = eye(4);
-            links =obj.links;
-            for i = 1:obj.n_dof
-                links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
-            end
-            for i=1:obj.n_dof
-%                 T = T*obj.links{i}.exp(pose(i)).double();
-%                 T = T*se3exp(obj.links(:,i),pose(i));
-                    T = T*MatrixExp6(VecTose3(links(:,i)*pose(i)));
-            end
-%             T = T*se3exp(obj.g_st_poe,1)*obj.T_tool;
-            T = T * obj.g_st0 * obj.T_tool;
+%             Ts = zeros([4,4,size(poses,1)]);
+%             for i =1:size(poses,1)
+%                 pose = poses(i,:);
+                T = eye(4);
+                links =obj.links;
+                for i = 1:obj.n_dof
+                    links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
+                end
+                for j=1:obj.n_dof
+                        T = T*MatrixExp6(VecTose3(links(:,j)*pose(j)));
+                end
+                T = T * obj.g_st0 * obj.T_tool;
+%             end
         end
         
         function Jacob = get_J(obj, pose)

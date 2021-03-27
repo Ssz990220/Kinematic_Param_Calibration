@@ -44,11 +44,3 @@ init = [R_,[0,0,370]';
     
 %% Solve
 Tool_T = hand_eye_calibration(Ts, p_measure,init)
-
-
-% Tool = [eye(3),[0,0,270]';
-%         zeros(1,3),1];
-% robot_with_tool = SerialLink([link1, link2, link3, link4, link5, link6],'tool',Tool_T);
-% pos_eff = robot_with_tool.fkine(qs(1,:)).double();
-% ball_pos = pos_eff * [eye(3),qs(1,:)';zeros(1,3),1];
-% ball_pos = ball_pos(1:3,4)

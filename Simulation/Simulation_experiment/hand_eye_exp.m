@@ -9,6 +9,7 @@ shift_levels = [0,1,5,10];
 result = [];
 total_iter = 960;
 iter = 0;
+time_consumed =0;
 tic;
 for a = 1:size(r_c,1)
     row = r_c(a,1);
@@ -31,9 +32,10 @@ for a = 1:size(r_c,1)
                     clc;
                     iter = iter + a;
                     time = toc;
-                    eta = time/iter * (total_iter - iter);
+                    time_consumed = time_consumed + time;
+                    eta = time_consumed/iter * (total_iter - iter);
                     min = eta/60;
-                    fprintf('%.2f % done, ETA: %.2f min \n',[iter/total_iter*100, min]);
+                    fprintf('%.3f percent done, ETA: %.2f min \n',[iter/total_iter*100, min]);
                 end
             end
         end

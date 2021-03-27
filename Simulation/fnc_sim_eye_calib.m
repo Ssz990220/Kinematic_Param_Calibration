@@ -27,7 +27,7 @@ Ts_without_tool = Ts_without_tool + Ts_noise;
 
 %% Solve
 
-T_tool = hand_eye_calibration(Ts_without_tool, p_measure, eye(4),'final');
+T_tool = hand_eye_calibration(Ts_without_tool, p_measure, eye(4),'off');
 
 %% return results
 error = norm(T_tool - Tool);

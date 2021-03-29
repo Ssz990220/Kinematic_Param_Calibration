@@ -1,46 +1,27 @@
 clear;
 clc;
+%% Specify folder
+surfix = './experiment/experiment_0329/hand_eye_calibration_1614/';
 %% load measure position
-p_measure = [8.10051, 0.755453, 3.87203;
-5.05026, -4.90213, 6.82202;
-1.36852, -1.74397, -5.99634;
-1.39138, -1.73278, -5.9723;
--2.09751, -9.1223, 6.44667;
--0.961975, -8.42116, 6.71552;
-8.50662, 0.402165, 0.487261;
-1.12939, 5.76839, 3.31967;
--2.03222, -0.78246, -1.64654;
-9.88228, 4.39013, 3.67442;
--1.41321, 8.18005, -8.83883;
-3.01317, -4.02275, 8.21561;
-2.08095, -5.01704, 4.58074;
--1.33683, 0.500471, -8.73315;
-10.6069, -7.12068, 5.8019;
-3.8862, -1.62116, 4.45835;
-6.73956, 3.15621, 8.00679;
--2.49731, 9.27199, 8.87429;
--2.06716, -9.3247, -9.94785;
-12.4618, -4.71988, -9.57101;
-5.57377, -3.75484, 0.803766;
--4.54781, -5.06984, -3.29962;
--3.29673, -4.83072, -7.26155;
-9.99682, -9.62399, -8.29242;
-5.36101, -0.873521, 0.0862045;
--0.205442, -0.935163, 7.52743;]';
+filename = strcat(surfix,'/ball_measure.txt');
+p_measure = read_real_ball_measure(filename);
         
 %% Load Last Joint Posture
-filename = './experiment_0324/2125_hand_eye_calibration/endT_data.txt';
+filename = strcat(surfix,'endT_data.txt');
 Ts = read_real_robot_pos(filename);
 %% Filter Ts & p_measure input
 
 % Ts_valid_index = [18,19,20,21,22,23,26,27,28,29,30,31,2,3,4,5,6,7,10,11,12,13,14,15];
 % Ts_valid = Ts(:,:,Ts_valid_index);
-n_points_used = 26;
-Ts = Ts(:,:,1:n_points_used);
-p_measure = p_measure(:,1:n_points_used);
+% n_points_used = 26;
+% Ts = Ts(:,:,1:n_points_used);
+% p_measure = p_measure(:,1:n_points_used);
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 init = [R_,[0,0,370]';
         zeros(1,3),1];
     
 %% Solve
 Tool_T = hand_eye_calibration(Ts, p_measure,init)
+%% Save
+Tool_T_path = strcat(surfix, 'Tool_t.mat');
+save(Tool_T_path, 'Tool_T');

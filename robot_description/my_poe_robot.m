@@ -75,6 +75,7 @@ classdef my_poe_robot < handle
                     omega_fake(:,i) = omega_fake(:,i)/norm(omega_fake(:,i));
                 end
                 poe_q = poe_q + q_noise;
+                poe_omega = omega_fake;
             end
             obj.poe_omega = poe_omega;  %  the axis that the joint is rotate about, in 3 by 1
             obj.poe_q = poe_q;      % a point on the axis, or v in prismatic case, in 3 by 1
@@ -116,12 +117,7 @@ classdef my_poe_robot < handle
             %   Detailed explanation goes here
                 T = eye(4);
                 pose = pose + obj.angle_error + obj.angle_shift;
-%                 links =obj.links;
-%                 for i = 1:obj.n_dof
-%                     links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
-%                 end
                 for j=1:obj.n_dof
-%                         T = T*MatrixExp6(VecTose3(links(:,j)*pose(j)));
                         T = T*MatrixExp6(VecTose3(obj.links(:,j)*pose(j)));
                 end
                 T = T * MatrixExp6(VecTose3(obj.g_st_poe)) * obj.T_tool;
@@ -170,43 +166,6 @@ classdef my_poe_robot < handle
             end
         end
         
-%          function Jacob = get_J_rel(obj, pose, type)
-%             % type 1: only joint parameter is calibrated
-%             % type 2: joint parameter and g_st0 are all calibrated
-%             current_T = eye(4);
-%             if type == 1
-%                 Jacob = zeros(6, 6*obj.n_dof);
-%             elseif type == 2
-%                 Jacob = zeros(6, 6*obj.n_dof+6);
-%             end
-%             for i = 1:obj.n_dof
-%                 Ad = Ad_X(current_T);
-%                 current_T = current_T * se3exp(obj.links(:,i),pose(i));      %update T
-%                 Ad_cur = Ad_X(current_T);
-%                 omega_att = norm(obj.links(1:3,i));                         %attitude of omega
-%                 theta = omega_att * pose(i);
-%                 Omega = [skew(obj.links(1:3,i)), zeros(3,3);                % the big omega is way different from omega
-%                     skew(obj.links(4:6,i)), skew(obj.links(1:3,i))];
-%                 A = pose(i) * eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-%                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-%                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-%                     +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-%                 Jacob(:,6*(i-1)+1:6*i) = (eye(6) - Ad * (Ad_cur)) * A;
-%             end
-%             if type == 2
-%                 Ad = Ad_X(current_T);
-%                 omega_att = norm(obj.g_st_poe(1:3));
-%                 theta = omega_att;
-%                 Omega = [skew(obj.g_st_poe(1:3)),zeros(3,3);
-%                     skew(obj.g_st_poe(4:6)), skew(obj.g_st_poe(1:3))];
-%                 A = eye(6) + (4 - theta*sin(theta)-4*cos(theta))/(2*omega_att^2) * Omega...
-%                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
-%                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
-%                     +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-%                 Jacob(:,6*obj.n_dof+1:6*obj.n_dof+6) = Ad * A;
-%             end
-%         end
-        
         function obj = update_poe(obj,delta_poe, type)
             % type 1: only joint parameter is calibrated
             % type 2: joint parameter and g_st0 are all calibrated
@@ -215,7 +174,7 @@ classdef my_poe_robot < handle
                 if (type == 1) || (type == 2)
                     delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
                 elseif type==3
-                    delta_poe_kine(:,i) = delta_poe(7*(i-1)+1:7*i + 6); 
+                    delta_poe_kine(:,i) = delta_poe(7*(i-1)+1:7*(i-1) + 6); 
                 end
             end
             cur_links = obj.links + delta_poe_kine;
@@ -239,29 +198,9 @@ classdef my_poe_robot < handle
                  for i = 1:obj.n_dof
                      angle_shift_update(i) = delta_poe(7*i);
                  end
-                 obj.angle_shift  = obj.angle_shift + angle_shift_update;
+                 obj.angle_shift  = obj.angle_shift - angle_shift_update;
              end
         end
-%         function obj = update_poe_rel(obj,delta_poe, type)
-%             % type 1: only joint parameter is calibrated
-%             % type 2: joint parameter and g_st0 are all calibrated
-%             delta_poe_kine = zeros(size(obj.links));
-%             for i = 1:obj.n_dof
-%                delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
-%             end
-%             cur_links = zeros(size(obj.links));
-%             for i = 1:obj.n_dof
-%                 cur_links(:,i) = Ad_X(VecTose3(delta_poe_kine(:,i)))*obj.links(:,i);
-%             end
-%             obj.links = cur_links;  
-%              if type == 2
-%                 delta_g_st0 = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
-%                 cur_g_st = obj.g_st_poe + delta_g_st0;
-%                 cur_g_st(1:3) = cur_g_st(1:3)/norm(cur_g_st(1:3));
-% %                 cur_g_st(4:6) = cur_g_st(4:6) - (cur_g_st(1:3)'*cur_g_st(4:6))/(cur_g_st(1:3)'*cur_g_st(1:3))*cur_g_st(1:3);
-%                 obj.g_st_poe = cur_g_st;
-%              end
-%         end
     end
         
 %         function q = ikine(obj, target)

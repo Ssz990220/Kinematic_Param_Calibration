@@ -6,7 +6,7 @@ robot = my_new_dh_robot();
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(T_tool, true, 0.0005,1, false);
+robot_poe = my_poe_robot(T_tool, true, 0.2,1, false,0,0,false);
 
 %% parameters
 n_holes = 16;
@@ -38,6 +38,9 @@ while 1
     fprintf('Iteration %d\t takes time %.4f, \t error is %.12f \n',[iter, time, error]);
     iter = iter + 1;
     if error < threshold
+        break
+    end
+    if iter > 30
         break
     end
 end

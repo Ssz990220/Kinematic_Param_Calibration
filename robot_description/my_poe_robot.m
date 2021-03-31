@@ -102,10 +102,10 @@ classdef my_poe_robot < handle
             obj.angle_shift = zeros(1,obj.n_dof);
             obj.T_tool = T_tool;
             if add_base_shift
+                % omega in g_st need not to be normalized
                 g_st_poe_omega_noise = normrnd(0,base_shift_omega, [3,1]);
                 g_st_poe_q_noise = normrnd(0,base_shift_q,[3,1]);
                 g_st_omega_fake = obj.g_st_poe(1:3) + g_st_poe_omega_noise;
-%                 g_st_omega_fake = g_st_omega_fake/norm(g_st_omega_fake);
                 g_st_poe_q_fake = obj.g_st_poe(4:6) + g_st_poe_q_noise;
                 obj.g_st_poe = [g_st_omega_fake; g_st_poe_q_fake];
             end
@@ -114,26 +114,26 @@ classdef my_poe_robot < handle
         %% Other Functions
         function T = fkine(obj,pose)
             %fkine Summary of this method goes here
-            %   Detailed explanation goes here
+            %   Forward kinematics for a POE robot
                 T = eye(4);
                 pose = pose + obj.angle_error + obj.angle_shift;
                 for j=1:obj.n_dof
                         T = T*MatrixExp6(VecTose3(obj.links(:,j)*pose(j)));
                 end
                 T = T * MatrixExp6(VecTose3(obj.g_st_poe)) * obj.T_tool;
-%             end
         end
         
         function Jacob = get_J(obj, pose, type)
             % type 1: only joint parameter is calibrated
             % type 2: joint parameter and g_st0 are all calibrated
+            % type 3: joint parameters, g_st0 and joint offset are all calibrated.
             current_T = eye(4);
             if type == 1
                 Jacob = zeros(6, 6*obj.n_dof);
             elseif type == 2
                 Jacob = zeros(6, 6*obj.n_dof+6);
             elseif type == 3
-                Jacob = zeros(6,7*obj.n_dof + 6);
+                Jacob = zeros(6,7*obj.n_dof);
             end
             for i = 1:obj.n_dof
                 Ad = Ad_X(current_T);
@@ -152,7 +152,7 @@ classdef my_poe_robot < handle
                     Jacob(:,7*(i-1)+1:7*i) = [Ad * A, obj.links(:,i)];
                 end
             end
-            if (type == 2) || (type == 3)
+            if (type == 2)
                 Ad = Ad_X(current_T);
                 omega_att = norm(obj.g_st_poe(1:3));
                 theta = omega_att;
@@ -191,9 +191,6 @@ classdef my_poe_robot < handle
                 obj.g_st_poe = cur_g_st;
              end
              if type == 3
-                 delta_g_st0 = delta_poe(7*obj.n_dof+1:7*obj.n_dof+6);
-                 cur_g_st = obj.g_st_poe + delta_g_st0;
-                 obj.g_st_poe = cur_g_st;
                  angle_shift_update  = zeros(1,obj.n_dof);
                  for i = 1:obj.n_dof
                      angle_shift_update(i) = delta_poe(7*i);

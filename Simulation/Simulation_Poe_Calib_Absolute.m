@@ -7,7 +7,7 @@ clear;
 clc;
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(Tool, true, 0.5, 0.5, true, 0.5,5);
+robot_poe = my_poe_robot(Tool, true, 0.01, 0.5, true, 0.05,20, false,0.2,2);
 %% Prepare real robot
 robot = my_new_dh_robot(Tool);
 %% Calibration Hyperparameter
@@ -15,7 +15,7 @@ n_points = 32;
 threshold = 1e-11;
 calibration_done = false;
 iter = 1;
-iter_times = 3;
+iter_times = 1;
 type = 2;
 
 %% Calibration
@@ -41,6 +41,9 @@ for t = 1:iter_times
         if error < threshold
             break
         end
+        if iter > 50
+            break
+        end
     end
 end
 
@@ -52,6 +55,6 @@ for i = 1:n_test
     pose = rand(1,6);
     T1 = robot.fkine(pose).double();
     T2 = robot_poe.fkine(pose);
-    error = error + norm(T1-T2);     % if this goes to 0, it works.
+    error = error + norm(T1-T2);
 end
 error = error / n_test

@@ -9,16 +9,14 @@ if type ==1
     Jacob = zeros([6*n_points,robot_poe.n_dof*6]);
 elseif type == 2
     Jacob = zeros([6*n_points,robot_poe.n_dof*6 + 6]);
+elseif type ==3 
+    Jacob = zeros([6*n_points, robot_poe.n_dof *7]);
 end
 for i = 1:n_points
     delta_gg = MatrixLog6(Ts_true(:,:,i)*TransInv(Ts_nominal(:,:,i)));
     delta_gg6((i-1)*6+1:i*6) = se3ToVec(delta_gg);
     j = robot_poe.get_J(qs(i,:), type);
-    if type == 1
-        Jacob((i-1)*6+1:i*6,:) = j;
-    elseif type == 2
-        Jacob((i-1)*6+1:i*6,:) = j;
-    end
+    Jacob((i-1)*6+1:i*6,:) = j;
 end
 delta_poe = pinv(Jacob)*delta_gg6;
 % delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);

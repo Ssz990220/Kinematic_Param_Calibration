@@ -5,7 +5,7 @@ addpath(genpath('..\'));
 %% genenrate POE parameter with noise
 clear;
 clc;
-robot_poe = my_poe_robot(eye(4), false,0,0, false);
+robot_poe = my_poe_robot(eye(4), false,0,0, false,0,0);
 %% Prepare real robot data
 file = fopen('./experiment/experiment_0329/hand_eye_calibration_1614/qs5.txt','r');
 formatSpec = '%f %f %f %f %f %f %f\n';

@@ -11,10 +11,11 @@ classdef my_poe_robot < handle
         g_st0;
         g_st_poe;
         angle_error;
+        angle_shift;
     end
     
     methods
-        function obj = my_poe_robot(T_tool, add_shift, omega_shift_level, q_shift_level, add_base_shift, add_angle_noise, angle_shift_level)
+        function obj = my_poe_robot(T_tool, add_joint_shift, omega_shift_level, q_shift_level, add_base_shift, base_shift_omega, base_shift_q, add_angle_noise, angle_error_level, angle_error_decay)
             %MY_POE_ROBOT Construct an instance of this class
             %   Detailed explanation goes here
             poe_omega = [0 0 1;
@@ -39,23 +40,34 @@ classdef my_poe_robot < handle
                 R_ = [-1,0,0;0,1,0;0,0,-1]';
                 T_tool= [R_,[0,0,370]';
                         zeros(1,3),1];
-                add_shift = false;
+                add_joint_shift = false;
                 omega_shift_level = 0;
                 q_shift_level = 0;
                 add_base_shift = false;
-            elseif nargin == 1
-                add_shift = false;
-                omega_shift_level = 0;
-                q_shift_level = 0;
-                add_base_shift = false;
-            elseif nargin == 5
+                base_shift_omega = 0;
+                base_shift_q = 0;
                 add_angle_noise = false;
-                angle_shift_level = 0;
+                angle_error_level = 0;
+                angle_error_decay = 0;
+            elseif nargin == 1
+                add_joint_shift = false;
+                omega_shift_level = 0;
+                q_shift_level = 0;
+                add_base_shift = false;
+                base_shift_omega = 0;
+                base_shift_q = 0;
+                add_angle_noise = false;
+                angle_error_level = 0;
+                angle_error_decay = 0;
+            elseif nargin == 7
+                add_angle_noise = false;
+                angle_error_level = 0;
+                angle_error_decay = 0;
             end
             
             
             %% Initialize
-            if add_shift
+            if add_joint_shift
                 omega_noise = normrnd(0,omega_shift_level,size(poe_omega));
                 q_noise = normrnd(0,q_shift_level,size(poe_q));
                 omega_fake = poe_omega + omega_noise;
@@ -78,12 +90,21 @@ classdef my_poe_robot < handle
                 v = -cross(obj.poe_omega(:,i),obj.poe_q(:,i));
                 obj.links(:,i) = [obj.poe_omega(:,i);v];        % [omega, v]'
             end
+            if add_angle_noise
+                angle_error = (rand([1,6]) - 0.5) * 2 * angle_error_level;
+                weights = linspace(-obj.n_dof+1,0,obj.n_dof);
+                weights = angle_error_decay.^weights;
+                obj.angle_error = angle_error .* weights;
+            else
+                obj.angle_error = zeros(1,obj.n_dof);
+            end
+            obj.angle_shift = zeros(1,obj.n_dof);
             obj.T_tool = T_tool;
             if add_base_shift
-                g_st_poe_omega_noise = normrnd(0,omega_shift_level, [3,1]);
-                g_st_poe_q_noise = normrnd(0,q_shift_level,[3,1]);
+                g_st_poe_omega_noise = normrnd(0,base_shift_omega, [3,1]);
+                g_st_poe_q_noise = normrnd(0,base_shift_q,[3,1]);
                 g_st_omega_fake = obj.g_st_poe(1:3) + g_st_poe_omega_noise;
-                g_st_omega_fake = g_st_omega_fake/norm(g_st_omega_fake);
+%                 g_st_omega_fake = g_st_omega_fake/norm(g_st_omega_fake);
                 g_st_poe_q_fake = obj.g_st_poe(4:6) + g_st_poe_q_noise;
                 obj.g_st_poe = [g_st_omega_fake; g_st_poe_q_fake];
             end
@@ -93,16 +114,15 @@ classdef my_poe_robot < handle
         function T = fkine(obj,pose)
             %fkine Summary of this method goes here
             %   Detailed explanation goes here
-%             Ts = zeros([4,4,size(poses,1)]);
-%             for i =1:size(poses,1)
-%                 pose = poses(i,:);
                 T = eye(4);
-                links =obj.links;
-                for i = 1:obj.n_dof
-                    links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
-                end
+                pose = pose + obj.angle_error + obj.angle_shift;
+%                 links =obj.links;
+%                 for i = 1:obj.n_dof
+%                     links(1:3,i) = links(1:3,i)/norm(links(1:3,i));
+%                 end
                 for j=1:obj.n_dof
-                        T = T*MatrixExp6(VecTose3(links(:,j)*pose(j)));
+%                         T = T*MatrixExp6(VecTose3(links(:,j)*pose(j)));
+                        T = T*MatrixExp6(VecTose3(obj.links(:,j)*pose(j)));
                 end
                 T = T * MatrixExp6(VecTose3(obj.g_st_poe)) * obj.T_tool;
 %             end
@@ -116,6 +136,8 @@ classdef my_poe_robot < handle
                 Jacob = zeros(6, 6*obj.n_dof);
             elseif type == 2
                 Jacob = zeros(6, 6*obj.n_dof+6);
+            elseif type == 3
+                Jacob = zeros(6,7*obj.n_dof + 6);
             end
             for i = 1:obj.n_dof
                 Ad = Ad_X(current_T);
@@ -128,9 +150,13 @@ classdef my_poe_robot < handle
                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
                     +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-                Jacob(:,6*(i-1)+1:6*i) = Ad * A;
+                if (type == 1) || (type == 2)
+                    Jacob(:,6*(i-1)+1:6*i) = Ad * A;
+                elseif type == 3
+                    Jacob(:,7*(i-1)+1:7*i) = [Ad * A, obj.links(:,i)];
+                end
             end
-            if type == 2
+            if (type == 2) || (type == 3)
                 Ad = Ad_X(current_T);
                 omega_att = norm(obj.g_st_poe(1:3));
                 theta = omega_att;
@@ -140,7 +166,7 @@ classdef my_poe_robot < handle
                     + (4*theta-5*sin(theta)+theta*cos(theta))/(2*omega_att^3)*Omega^2 ...
                     + (2 - theta*sin(theta) - 2*cos(theta))/(2*omega_att^4)*Omega^3 ...
                     +(2*theta -3*sin(theta) + theta*cos(theta))/(2*omega_att^5)*Omega^4;
-                Jacob(:,6*obj.n_dof+1:6*obj.n_dof+6) = Ad * A;
+               Jacob(:,end-5:end) = Ad * A;
             end
         end
         
@@ -186,9 +212,12 @@ classdef my_poe_robot < handle
             % type 2: joint parameter and g_st0 are all calibrated
             delta_poe_kine = zeros(size(obj.links));
             for i = 1:obj.n_dof
-               delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
+                if (type == 1) || (type == 2)
+                    delta_poe_kine(:,i) = delta_poe(6*(i-1)+1:6*i); 
+                elseif type==3
+                    delta_poe_kine(:,i) = delta_poe(7*(i-1)+1:7*i + 6); 
+                end
             end
-%             delta_poe_st  = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
             cur_links = obj.links + delta_poe_kine;
             for i = 1:obj.n_dof
                 cur_links(1:3,i) = cur_links(1:3,i)/norm(cur_links(1:3,i));
@@ -200,9 +229,17 @@ classdef my_poe_robot < handle
              if type == 2
                 delta_g_st0 = delta_poe(6*obj.n_dof+1:6*obj.n_dof+6);
                 cur_g_st = obj.g_st_poe + delta_g_st0;
-%                 cur_g_st(1:3) = cur_g_st(1:3)/norm(cur_g_st(1:3));
-%                 cur_g_st(4:6) = cur_g_st(4:6) - (cur_g_st(1:3)'*cur_g_st(4:6))/(cur_g_st(1:3)'*cur_g_st(1:3))*cur_g_st(1:3);
                 obj.g_st_poe = cur_g_st;
+             end
+             if type == 3
+                 delta_g_st0 = delta_poe(7*obj.n_dof+1:7*obj.n_dof+6);
+                 cur_g_st = obj.g_st_poe + delta_g_st0;
+                 obj.g_st_poe = cur_g_st;
+                 angle_shift_update  = zeros(1,obj.n_dof);
+                 for i = 1:obj.n_dof
+                     angle_shift_update(i) = delta_poe(7*i);
+                 end
+                 obj.angle_shift  = obj.angle_shift + angle_shift_update;
              end
         end
 %         function obj = update_poe_rel(obj,delta_poe, type)

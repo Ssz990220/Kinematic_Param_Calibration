@@ -1,4 +1,4 @@
-function [Ts, p_measures] = gen_poe_cal_pos(T_holes, measure_per_point, r, z_angle, shift_level)
+function [Ts, p_measures] = gen_poe_cal_pos(T_holes, measure_per_point, r, z_angle_level, shift_level)
 %GEN_POE_CAL_POS Summary of this function goes here
 %   We assume the calibration bar is placed on the plane and directed to positive x
 %   axis. The approximate distance between each two holes are pre-known.
@@ -20,8 +20,11 @@ function [Ts, p_measures] = gen_poe_cal_pos(T_holes, measure_per_point, r, z_ang
 %         angle_z = z_angle/180*pi;
 %     end
     n_points = size(T_holes, 3);
-    angle_y = randi([45,70],1,n_points)/180*pi;
-    angle_z = randi([-z_angle,z_angle],1,n_points)/180*pi;
+%     angle_y = randi([45,70],1,n_points)/180*pi;
+    angle_y = rand(1,n_points) * 25 + 45;
+    angle_y = angle_y / 180 * pi;
+%     angle_z = randi([-z_angle,z_angle],1,n_points)/180*pi;
+    angle_z =(rand(1,n_points) - 0.5) * 2 * z_angle_level / 180 * pi;
     T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
         0,1,0,0;
         -sin(alpha_y),0,cos(alpha_y),0;

@@ -18,6 +18,16 @@ iter = 1;
 iter_times = 1;
 type = 2;
 
+%% Initial Error
+error = 0;
+n_test = 100;
+for i = 1:n_test
+    pose = rand(1,6);
+    T1 = robot.fkine(pose).double();
+    T2 = robot_poe.fkine(pose);
+    error = error + norm(T1-T2);
+end
+error_init = error / n_test;
 %% Calibration
 for t = 1:iter_times
     angle_list = 2*(rand([n_points,6])-0.5)*pi;
@@ -57,4 +67,6 @@ for i = 1:n_test
     T2 = robot_poe.fkine(pose);
     error = error + norm(T1-T2);
 end
-error = error / n_test
+error = error / n_test;
+
+fprintf("Initial error is %.2f, after calibration, error is %.10f \n",[error_init, error]);

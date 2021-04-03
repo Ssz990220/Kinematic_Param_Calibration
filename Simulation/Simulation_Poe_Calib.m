@@ -22,6 +22,7 @@ type = 1;
 %     z_angle = z_angle_list(mod(iter,size(z_angle_list,2))+1);
 % [Ts, p_measures] = gen_poe_cal_pos(T_holes, measure_per_point, r, z_angle,10);
 [qs, p_measures, x_true, ~] = gen_poe_cal_pos_joint_space(n_holes, robot, r);
+robot_view_generate_pose(robot, qs);
 % view_holes(T_holes,10,true);
 % view_measure_pose(Ts, p_measures, 10, false);
 % qs = robot.ikine(Ts);   % n_points by 6
@@ -42,9 +43,9 @@ end
 error_init = error / n_test;
 
 %% Add noise
-noise_level = 0.03;
-noise = (rand(size(p_measures))-0.5)*2*noise_level;
-p_measures = p_measures + noise;
+% noise_level = 0.03;
+% noise = normrnd(0, noise_level, size(p_measures));
+% p_measures = p_measures + noise;
 %% Calibration
 
 while 1

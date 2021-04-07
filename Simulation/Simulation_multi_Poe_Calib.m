@@ -11,14 +11,14 @@ robot_poe = my_poe_robot(T_tool, true, 0.05,1, false,0.001,0.2,false);
 %% parameters
 n_holes_row = 3;
 n_holes_cube = n_holes_row^2*3;
-n_cubes = 3;
+n_cubes = 1;
 n_holes = n_cubes * n_holes_cube;
 T_holes = zeros(4,4,n_holes);
 T_holes(:,:,1:n_holes_cube)= gen_random_hole_pos(n_holes_cube,900,1300,-200,200,700,1100);
-T_holes(:,:,n_holes_cube + 1:n_holes_cube*2) = gen_random_hole_pos(n_holes_cube, -200,200,900,1300,700,1100);
-T_holes(:,:,n_holes_cube*2+1:n_holes_cube*3) = gen_random_hole_pos(n_holes_cube,-200,200,-1300,-900,700,1100);
-T_holes(1:3,1:3,n_holes_cube+1:n_holes_cube*2) = repmat([0,1,0;-1,0,0;0,0,1]',1,1,n_holes_cube);
-T_holes(1:3,1:3,n_holes_cube*2+1:n_holes_cube*3) = repmat([0,-1,0;1,0,0;0,0,1]',1,1,n_holes_cube);
+% T_holes(:,:,n_holes_cube + 1:n_holes_cube*2) = gen_random_hole_pos(n_holes_cube, -200,200,900,1300,700,1100);
+% T_holes(:,:,n_holes_cube*2+1:n_holes_cube*3) = gen_random_hole_pos(n_holes_cube,-200,200,-1300,-900,700,1100);
+% T_holes(1:3,1:3,n_holes_cube+1:n_holes_cube*2) = repmat([0,1,0;-1,0,0;0,0,1]',1,1,n_holes_cube);
+% T_holes(1:3,1:3,n_holes_cube*2+1:n_holes_cube*3) = repmat([0,-1,0;1,0,0;0,0,1]',1,1,n_holes_cube);
 
 measure_per_point = 1;
 r = 200;
@@ -50,9 +50,9 @@ end
 error_init = error / n_test;
 
 %% Add noise
-noise_level = 0.03;
-noise = normrnd(0, noise_level, size(p_measures));
-p_measures = p_measures + noise;
+% noise_level = 0.03;
+% noise = normrnd(0, noise_level, size(p_measures));
+% p_measures = p_measures + noise;
 %% Calibration
 
 while 1

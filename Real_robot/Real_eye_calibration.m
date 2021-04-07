@@ -1,14 +1,18 @@
 clear;
 clc;
 %% Specify folder
-surfix = './experiment/experiment_0329/hand_eye_calibration_1614/';
+surfix = './experiment/experiment_0407/hand_eye_calibration_1334/';
 %% load measure position
-filename = strcat(surfix,'/ball_measure.txt');
-p_measure = read_real_ball_measure(filename);
+% filename = strcat(surfix,'/ball_measure.txt');
+% p_measure = read_real_ball_measure(filename);
         
 %% Load Last Joint Posture
-filename = strcat(surfix,'endT_data.txt');
-Ts = read_real_robot_pos(filename);
+% filename = strcat(surfix,'endT_data.txt');
+% Ts = read_real_robot_pos(filename);
+
+%% Load data--all in one
+filename = strcat(surfix,'/test.txt');
+[p_measure, Ts] = read_real_measure_data(filename);
 %% Filter Ts & p_measure input
 
 % Ts_valid_index = [18,19,20,21,22,23,26,27,28,29,30,31,2,3,4,5,6,7,10,11,12,13,14,15];

@@ -6,14 +6,13 @@ robot = my_new_dh_robot();
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(T_tool, true, 0.005,0.001, false,0.001,0.2,false);
+robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
 
 %% parameters
 % For cube position %
 dis_holes = 100;
-n_holes_each_line = 3;
-edge_length = 400;
-n_cubes = 12;
+n_holes_each_line = 4;
+n_cubes = 3;
 measure_times = 3;
 rand_pose = true;
 % For measure %
@@ -23,11 +22,12 @@ threshold = 1e-11;
 type = 1;
 % noise %
 noise_level = 0.03;
-add_noise = true;
+add_noise = false;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
 %% Generate cube position
+edge_length = dis_holes * (n_holes_each_line + 1);
 angle_apart = 360/n_cubes;
 n_holes_cube = n_holes_each_line^2 * 3;
 n_holes = n_holes_cube * n_cubes * measure_times;
@@ -55,7 +55,7 @@ tic;
 qs = zeros(n_holes, 6);
 Ts(1:3,4,:) = Ts(1:3,4,:)/1000;
 if rand_pose
-    parfor i = 1:n_holes
+    for i = 1:n_holes
         qss = exp_ikine(Ts(:,:,i),zeros(6,1),1)';
         qss = qss(any(qss,1),:);
         qs(i,:) = qss(randi([1,size(qss,2)]),:);

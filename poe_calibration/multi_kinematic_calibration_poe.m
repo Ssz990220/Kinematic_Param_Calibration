@@ -35,9 +35,9 @@ for m = 1:n_cube
     for i = 1:n_holes_cube
         for j = i+1 : n_holes_cube
             Delta_x((m-1)*m_n + base_idx + j - i) = - norm(x_measure(:,(m-1)*n_holes_cube + i) - x_measure(:,(m-1)*n_holes_cube +j))^2 + norm(x_true(:,(m-1)*n_holes_cube +i)-x_true(:,(m-1)*n_holes_cube +j))^2;
-    %         Delta_x((m-1)*m_n +base_idx + j - i) = norm(x_true(:,i) - x_true(:,j))- norm(x_measure(:,i) - x_measure(:,j));
+%             Delta_x((m-1)*m_n +base_idx + j - i) = norm(x_true(:,i) - x_true(:,j))- norm(x_measure(:,i) - x_measure(:,j));
             G(((m-1)*m_n +base_idx + j - i),:) = 2 * (x_measure(:,(m-1)*n_holes_cube +i) - x_measure(:,(m-1)*n_holes_cube +j))'*(J(:,:,(m-1)*n_holes_cube +i)-J(:,:,(m-1)*n_holes_cube +j));
-    %         G(((m-1)*m_n +base_idx + j - i),:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
+%             G(((m-1)*m_n +base_idx + j - i),:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
         end
         base_idx = base_idx + n_holes_cube - i;
     end

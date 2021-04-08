@@ -6,17 +6,19 @@ addpath(genpath('..\'));
 clear;
 clc;
 robot_poe = my_poe_robot(eye(4), false,0,0, false,0,0);
+%%
+surfix = './experiment/experiment_0408/eye_calibration_1716/';
 %% Prepare real robot data
-file = fopen('./experiment/experiment_0329/hand_eye_calibration_1614/qs5.txt','r');
+filename = strcat(surfix,'qs_all.txt');
+file = fopen(filename,'r');
 formatSpec = '%f %f %f %f %f %f %f\n';
 qs = fscanf(file,formatSpec,[6, Inf]);
 qs = qs';
 angle_list = qs/180*pi;
-% angle_list = qs(2:28,:);
-% angle_list(:,5) = -angle_list(:,5);
-% angle_list = angle_list/180*pi;
 fclose(file);
-Ts_true = read_real_robot_pos('./experiment/experiment_0329/hand_eye_calibration_1614/endT_data.txt');
+% Ts_true = read_real_robot_pos('./experiment/experiment_0329/hand_eye_calibration_1614/endT_data.txt');
+filename = strcat(surfix,'end_data_all.txt');
+[~, Ts_true] = read_real_measure_data(filename);
 %% Calibration Hyperparameter
 n_points = size(Ts_true,3);
 threshold = 1e-11;
@@ -35,13 +37,11 @@ while ~calibration_done
     old_gst = robot_poe.g_st_poe;
     robot_poe.update_poe(delta_poe, type);
     time = toc;
-    update = max(max(max(abs(old_links - robot_poe.links))), max(old_gst-robot_poe.g_st_poe));
-    fprintf('Iteration %d takes time %.4f, error is %.10f, update is %.10f \n',[iter, time, error, update]);
+    link_update = max(max(abs(old_links - robot_poe.links)));
+    gst_update = max(abs(old_gst - robot_poe.g_st_poe));
+    fprintf('Iteration %d takes time %.4f, error is %.10f, update is %.10f \n',[iter, time, error, link_update]);
     iter = iter + 1;
-    if error < threshold
-        break
-    end
-    if iter > 100
+    if error < threshold || ( iter > 50) || (link_update < 1e-9) 
         break
     end
 %         if update < threshold

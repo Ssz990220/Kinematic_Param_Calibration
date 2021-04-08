@@ -1,4 +1,6 @@
 function view_measure_pose(Ts,p_measures, scale, new_figure)
+% Visualize the measuring pose and generated measure data.
+% If all generate data point to the same location, then it is a valid result
 if nargin < 4
     figure
     hold on

@@ -3,6 +3,7 @@ This repo is for kinematic parameter calibration of an industrail manipulator.
 Methods based on modified DH and POE will be covered.
 Hand-eye calibration will be coded as well.
 
+**RUN** `addpath(genpath('.\'))` **in the master folder to add all .m file to your path before running.**
 ## File Structure
 * Real_Robot
    *  This folder contains script that calibrate the hand-eye transformation matrix

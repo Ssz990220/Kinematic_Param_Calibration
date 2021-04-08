@@ -1,7 +1,7 @@
 clear;
 clc;
 %% Specify folder
-surfix = './experiment/experiment_0407/hand_eye_calibration_1334/';
+surfix = './experiment/experiment_0408/eye_calibration_1716/';
 %% load measure position
 % filename = strcat(surfix,'/ball_measure.txt');
 % p_measure = read_real_ball_measure(filename);
@@ -11,7 +11,7 @@ surfix = './experiment/experiment_0407/hand_eye_calibration_1334/';
 % Ts = read_real_robot_pos(filename);
 
 %% Load data--all in one
-filename = strcat(surfix,'/test.txt');
+filename = strcat(surfix,'eye_calib_qs6.txt');
 [p_measure, Ts] = read_real_measure_data(filename);
 %% Filter Ts & p_measure input
 
@@ -27,5 +27,5 @@ init = [R_,[0,0,370]';
 %% Solve
 Tool_T = hand_eye_calibration(Ts, p_measure,init)
 %% Save
-Tool_T_path = strcat(surfix, 'Tool_t.mat');
+Tool_T_path = strcat(surfix, 'Tool_t_qs7.mat');
 save(Tool_T_path, 'Tool_T');

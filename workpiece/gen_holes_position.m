@@ -20,6 +20,7 @@ end
 index = 1:n_measures;
 for i = 1:8
     mean_xyz = mean(holes_reorder(:,:,i),2);
+    error_xyz = holes_reorder(:,:,i) - mean_xyz;
     figure
     hold on
     for j = 1:3

@@ -1,6 +1,5 @@
 clear;
 clc;
-addpath(genpath('..\'));
 %%%
 %% genenrate POE parameter with noise
 clear;
@@ -11,7 +10,7 @@ robot_poe = my_poe_robot(Tool, true, 0.01, 0.5, true, 0.05,20, false,0.2,2);
 %% Prepare real robot
 robot = my_new_dh_robot(Tool);
 %% Calibration Hyperparameter
-n_points = 32;
+n_points = 64;
 threshold = 1e-11;
 calibration_done = false;
 iter = 1;
@@ -32,6 +31,9 @@ error_init = error / n_test;
 for t = 1:iter_times
     angle_list = 2*(rand([n_points,6])-0.5)*pi;
     Ts_true = robot.fkine(angle_list).double();
+    for i = 1:n_points
+        Ts_true(1:3,4,i) = Ts_true(1:3,4,i) + normrnd(0,0.03,1,3)';
+    end
     while ~calibration_done
         tic;
         Ts_nominal = zeros(size(Ts_true));

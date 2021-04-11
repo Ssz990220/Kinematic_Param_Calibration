@@ -10,10 +10,10 @@ robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
 
 %% parameters
 % For cube position %
-dis_holes = 100;
-n_holes_each_line = 4;
-n_cubes = 3;
-measure_times = 3;
+dis_holes = 40;
+n_holes_each_line = 5;
+n_cubes = 6;
+measure_times = 12;
 rand_pose = true;
 % For measure %
 r = 50;
@@ -22,19 +22,20 @@ threshold = 1e-11;
 type = 1;
 % noise %
 noise_level = 0.03;
-add_noise = false;
+add_noise = true;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
 %% Generate cube position
 edge_length = dis_holes * (n_holes_each_line + 1);
-angle_apart = 360/n_cubes;
+angle_apart = 180/n_cubes;
 n_holes_cube = n_holes_each_line^2 * 3;
 n_holes = n_holes_cube * n_cubes * measure_times;
 cube_type = ones(1,n_cubes * measure_times);
-z_cubes = repmat(randi([450,550],1,n_cubes),1,measure_times);
-x_cubes = repmat(randi([850,950],1,n_cubes),1,measure_times);
-T_cubes = gen_cube_location(n_cubes * measure_times, angle_apart, z_cubes, x_cubes);
+z_cubes = randi([450,550],1,n_cubes);
+x_cubes = randi([850,950],1,n_cubes);
+T_cubes = gen_cube_location(n_cubes, angle_apart, z_cubes, x_cubes);
+T_cubes = repmat(T_cubes, 1, 1, measure_times);
 cubes = [];
 for i = 1:n_cubes * measure_times
     cube = standard_cubic_workpiece(T_cubes(:,:,i), cube_type(i), n_holes_each_line, dis_holes, edge_length);
@@ -55,7 +56,7 @@ tic;
 qs = zeros(n_holes, 6);
 Ts(1:3,4,:) = Ts(1:3,4,:)/1000;
 if rand_pose
-    for i = 1:n_holes
+    parfor i = 1:n_holes
         qss = exp_ikine(Ts(:,:,i),zeros(6,1),1)';
         qss = qss(any(qss,1),:);
         qs(i,:) = qss(randi([1,size(qss,2)]),:);

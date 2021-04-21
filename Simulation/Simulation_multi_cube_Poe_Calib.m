@@ -11,9 +11,9 @@ robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
 %% parameters
 % For cube position %
 dis_holes = 40;
-n_holes_each_line = 5;
-n_cubes = 6;
-measure_times = 12;
+n_holes_each_line = 3;
+n_cubes = 4;
+measure_times = 6;
 rand_pose = true;
 % For measure %
 r = 50;
@@ -21,11 +21,13 @@ z_angle = 45;
 threshold = 1e-11;
 type = 1;
 % noise %
-noise_level = 0.03;
+noise_level = 0.01;
 add_noise = true;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
+n_iter = 3;
+for iter = 1:n_iter
 %% Generate cube position
 edge_length = dis_holes * (n_holes_each_line + 1);
 angle_apart = 180/n_cubes;
@@ -56,7 +58,7 @@ tic;
 qs = zeros(n_holes, 6);
 Ts(1:3,4,:) = Ts(1:3,4,:)/1000;
 if rand_pose
-    parfor i = 1:n_holes
+    for i = 1:n_holes
         qss = exp_ikine(Ts(:,:,i),zeros(6,1),1)';
         qss = qss(any(qss,1),:);
         qs(i,:) = qss(randi([1,size(qss,2)]),:);
@@ -104,7 +106,7 @@ end
 iter = 1;
 while 1
     tic;
-    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, type, n_holes_cube, n_cubes * measure_times);
+    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, type, n_holes_cube, n_cubes, measure_times);
     old_links = robot_poe.links;
     old_gst = robot_poe.g_st_poe;
     robot_poe.update_poe(delta_poe, type);
@@ -129,3 +131,6 @@ end
 error = error / n_test;
 
 fprintf("Initial error is %.2f, after calibration, error is %.10f \n",[error_init, error]);
+
+%% End
+end

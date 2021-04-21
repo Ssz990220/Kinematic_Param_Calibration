@@ -6,10 +6,10 @@ robot = my_new_dh_robot();
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(T_tool, true, 0.05,1, false,0.001,0.2,false);
+robot_poe = my_poe_robot(T_tool, true, 0.005,0.1, false,0.001,0.2,false);
 
 %% parameters
-n_holes_row = 3;
+n_holes_row = 4;
 n_holes_cube = n_holes_row^2*3;
 n_cubes = 1;
 n_holes = n_cubes * n_holes_cube;
@@ -50,14 +50,14 @@ end
 error_init = error / n_test;
 
 %% Add noise
-% noise_level = 0.03;
-% noise = normrnd(0, noise_level, size(p_measures));
-% p_measures = p_measures + noise;
+noise_level = 0.003;
+noise = normrnd(0, noise_level, size(p_measures));
+p_measures = p_measures + noise;
 %% Calibration
 
 while 1
     tic;
-    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, type, n_holes_cube, n_cubes);
+    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, type, n_holes_cube, n_cubes, measure_per_point);
     old_links = robot_poe.links;
     old_gst = robot_poe.g_st_poe;
     robot_poe.update_poe(delta_poe, type);
@@ -69,7 +69,7 @@ while 1
     if error < threshold
         break
     end
-    if iter > 50
+    if iter > 200
         break
     end
 end

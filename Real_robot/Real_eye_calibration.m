@@ -25,7 +25,9 @@ init = [R_,[0,0,370]';
         zeros(1,3),1];
     
 %% Solve
+tic;
 Tool_T = hand_eye_calibration(Ts, p_measure,init)
+toc;
 %% Save
 Tool_T_path = strcat(surfix, 'Tool_t_qs7.mat');                             % Change this line to save the data in the file you want
 save(Tool_T_path, 'Tool_T');

@@ -9,7 +9,7 @@ T_tool= [R_,[0,0,370]';
 robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
 
 %% parameters
-n_holes = 512;
+n_holes = 64;
 % T_holes = gen_random_hole_pos(n_holes);
 measure_per_point = 1;
 r = 50;

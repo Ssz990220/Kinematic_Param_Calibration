@@ -10,12 +10,7 @@ robot_poe = my_poe_robot(eye(4), false,0,0, false,0,0);
 surfix = './experiment/experiment_0408/eye_calibration_1716/';
 %% Prepare real robot data
 filename = strcat(surfix,'qs_all.txt');
-file = fopen(filename,'r');
-formatSpec = '%f %f %f %f %f %f %f\n';
-qs = fscanf(file,formatSpec,[6, Inf]);
-qs = qs';
-angle_list = qs/180*pi;
-fclose(file);
+angle_list = read_qs(filename);
 % Ts_true = read_real_robot_pos('./experiment/experiment_0329/hand_eye_calibration_1614/endT_data.txt');
 filename = strcat(surfix,'end_data_all.txt');
 [~, Ts_true] = read_real_measure_data(filename);

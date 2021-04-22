@@ -2,16 +2,36 @@ clear;
 clc;
 %% Prepare robot
 robot = my_new_dh_robot();
-
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
+robot_poe = my_poe_robot(T_tool, true, 0.005,0.05, true,0,0.1,false);
+%(T_tool, add_joint_shift, omega_shift_level, q_shift_level, add_base_shift, base_shift_omega, base_shift_q, add_angle_noise, angle_error_level, angle_error_decay)
+%% Initial Error
+error = 0;
+counter = 0;
+n_test = 10;
+T_act = zeros(4,4,n_test);
+T_mea = zeros(4,4,n_test);
+
+for i = 1:n_test
+    pose = rand(1,6);
+    T_act(:,:,i) = robot.fkine(pose).double();
+    T_mea(:,:,i) = robot_poe.fkine(pose);
+end
+
+for i = 1:n_test
+    for j = (i+1):n_test
+        counter = counter+1;
+        error = error + norm(norm(T_act(1:3,4,i)-T_act(1:3,4,j))-norm(T_mea(1:3,4,i)-T_mea(1:3,4,j)));
+    end
+end
+error_init = error / counter;
 
 %% parameters
 % For ball %
-n_balls = 5;
-n_measure_each_ball = 30;
+n_balls = 1;
+n_measure_each_ball = 64;
 rand_pose = true;
 % For measure %
 r = 50;
@@ -24,7 +44,8 @@ add_noise = true;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
-n_iter = 10;
+n_iter = 1;
+
 for Iter = 1:n_iter
 %% Generate cube position
 T_balls = gen_ball_pos(n_balls);
@@ -66,17 +87,6 @@ if visualize_pose
     robot_view_generate_pose(robot,qs,2);
 end
 
-%% Initial Error
-error = 0;
-n_test = 100;
-for i = 1:n_test
-    pose = rand(1,6);
-    T1 = robot.fkine(pose).double();
-    T2 = robot_poe.fkine(pose);
-    error = error + norm(T1(1:3,4)-T2(1:3,4));
-end
-error_init = error / n_test;
-
 %% Add noise
 if add_noise
     noise = normrnd(0, noise_level, size(p_measures));
@@ -101,14 +111,23 @@ while 1
 end
 %% Validation
 error = 0;
-n_test = 100;
+counter = 0;
+T_act = zeros(4,4,n_test);
+
 for i = 1:n_test
     pose = rand(1,6);
-    T1 = robot.fkine(pose).double();
-    T2 = robot_poe.fkine(pose);
-    error = error + norm(T1(1:3,4)-T2(1:3,4));
+    T_act(:,:,i) = robot.fkine(pose).double();
+    T_mea(:,:,i) = robot_poe.fkine(pose);
 end
-error = error / n_test;
+
+for i = 1:n_test
+    for j = (i+1):n_test
+        counter = counter+1;
+        error = error + norm(norm(T_act(1:3,4,i)-T_act(1:3,4,j))-norm(T_mea(1:3,4,i)-T_mea(1:3,4,j)));
+    end
+end
+error = error / counter;
+   
 
 fprintf("Initial error is %.2f, after calibration, error is %.10f \n",[error_init, error]);
 

@@ -98,7 +98,7 @@ for a=1:6
     for b=1:8
         if (theta(a,b)==100)
             theta(:,b)=[100;100;100;100;100;100];
-            fprintf('%s \n','less one');
+%             fprintf('%s \n','less one');
         end
     end
 end

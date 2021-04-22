@@ -43,6 +43,6 @@ for m = 1:n_balls
         end
 end
 delta_poe = pinv(G)*Delta_x;
-error = norm(Delta_x);
+error = norm(Delta_x)/length(Delta_x);
 end
 

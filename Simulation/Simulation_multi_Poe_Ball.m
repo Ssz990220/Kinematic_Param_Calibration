@@ -34,7 +34,7 @@ error_init = error / counter;
 % For ball %
 n_balls = 1;
 
-n_measure_each_ball = 64;
+n_measure_each_ball = 32;
 
 rand_pose = true;
 % For measure %

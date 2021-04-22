@@ -1,21 +1,22 @@
 clear;
 clc;
 % Specify folder
-surfix = './experiment/';      % Change this line to match the date and time
+surfix = './experiment/experiment_0422/';      % Change this line to match the date and time
 error = [];
-for number = 1:5
+for number = 5:7
 Tool_T_path = strcat(surfix, 'Tool_t_qs',num2str(number),'.mat');                             % Change this line to save the data in the file you want
 load(Tool_T_path, 'Tool_T');
 
 % Load data--all in one
-filename = strcat(surfix,'eye_calib_qs (',num2str(number),').txt');                                    % Change this line to find the right file
+filename = strcat(surfix,'eye_calib_qs',num2str(number),'.txt');                                    % Change this line to find the right file
 [p_measure, Ts] = read_real_measure_data(filename);
 
 % Load qs
-filename = strcat(surfix,'qs (',num2str(number),').txt');   
+filename = strcat(surfix,'qs',num2str(number),'.txt');   
 angle_list = read_qs(filename);
 % Get POE Ts
-load experiment\experiment_0422\robot_poe_init.mat
+Tool_T_path = strcat(surfix, 'robot_poe_init.mat');
+load (Tool_T_path,'robot_poe')
 Ts = zeros(size(Ts));
 for i = 1:size(angle_list,1)
     Ts(:,:,i) = robot_poe.fkine(angle_list(i,:));

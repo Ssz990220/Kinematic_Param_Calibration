@@ -1,11 +1,11 @@
 clear;
 clc;
 %% Specify folder
-surfix = './experiment/';      % Change this line to match the date and time
+surfix = './experiment/experiment_0422/';      % Change this line to match the date and time
 
-for number = 1
+for number = 5:7
 %% Load data--all in one
-filename = strcat(surfix,'eye_calib_qs (',num2str(number),').txt');                                    % Change this line to find the right file
+filename = strcat(surfix,'eye_calib_qs',num2str(number),'.txt');                                    % Change this line to find the right file
 [p_measure, Ts] = read_real_measure_data(filename);
 
 %% Initial Guess

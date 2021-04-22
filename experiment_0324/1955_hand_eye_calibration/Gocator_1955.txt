@@ -1,0 +1,48 @@
+sphere is positioned at: (in model/1.ply frame)
+  Translation vector :
+3.23257, 3.01729, -0.0179844
+sphere is positioned at: (in model/2.ply frame)
+  Translation vector :
+3.1881, 2.10614, -0.281891
+sphere is positioned at: (in model/3.ply frame)
+  Translation vector :
+3.12067, 1.48077, -0.440063
+sphere is positioned at: (in model/4.ply frame)
+  Translation vector :
+3.0007, 0.790897, -0.539475
+sphere is positioned at: (in model/5.ply frame)
+  Translation vector :
+2.85975, 0.227053, -0.651285
+sphere is positioned at: (in model/6.ply frame)
+  Translation vector :
+2.75634, -0.531304, -0.594755
+sphere is positioned at: (in model/7.ply frame)
+  Translation vector :
+2.63517, -1.2087, -0.565526
+sphere is positioned at: (in model/8.ply frame)
+  Translation vector :
+2.47081, -1.72809, -0.526719
+sphere is positioned at: (in model/9.ply frame)
+  Translation vector :
+3.24265, -1.38484, -0.257345
+sphere is positioned at: (in model/10.ply frame)
+  Translation vector :
+3.41288, -0.867329, -0.319333
+sphere is positioned at: (in model/11.ply frame)
+  Translation vector :
+3.52303, -0.344423, -0.37664
+sphere is positioned at: (in model/12.ply frame)
+  Translation vector :
+3.58626, 0.457526, -0.392829
+sphere is positioned at: (in model/13.ply frame)
+  Translation vector :
+3.69426, 1.01064, -0.273773
+sphere is positioned at: (in model/14.ply frame)
+  Translation vector :
+3.75713, 1.56679, -0.168442
+sphere is positioned at: (in model/15.ply frame)
+  Translation vector :
+3.85162, 2.12204, -0.00441614
+sphere is positioned at: (in model/16.ply frame)
+  Translation vector :
+3.91902, 2.79337, 0.283474

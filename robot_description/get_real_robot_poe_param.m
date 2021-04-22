@@ -45,4 +45,5 @@ while ~calibration_done
 end
 
 %% Save
+save ./experiment/experiment_0422/robot_poe_init.mat robot_poe
 

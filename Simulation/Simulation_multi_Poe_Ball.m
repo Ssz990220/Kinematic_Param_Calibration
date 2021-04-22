@@ -5,6 +5,7 @@ robot = my_new_dh_robot();
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
+
 robot_poe = my_poe_robot(T_tool, true, 0.005,0.05, true,0,0.1,false);
 %(T_tool, add_joint_shift, omega_shift_level, q_shift_level, add_base_shift, base_shift_omega, base_shift_q, add_angle_noise, angle_error_level, angle_error_decay)
 %% Initial Error
@@ -28,10 +29,13 @@ for i = 1:n_test
 end
 error_init = error / counter;
 
+
 %% parameters
 % For ball %
 n_balls = 1;
+
 n_measure_each_ball = 64;
+
 rand_pose = true;
 % For measure %
 r = 50;
@@ -39,8 +43,8 @@ z_angle = 45;
 threshold = 1e-11;
 type = 1;
 % noise %
-noise_level = 0.03;
-add_noise = true;
+noise_level = 0.01;
+add_noise = false;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
@@ -127,8 +131,6 @@ for i = 1:n_test
     end
 end
 error = error / counter;
-   
-
 fprintf("Initial error is %.2f, after calibration, error is %.10f \n",[error_init, error]);
 
 %% End

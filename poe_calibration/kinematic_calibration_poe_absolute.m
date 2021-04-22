@@ -20,5 +20,5 @@ for i = 1:n_points
 end
 delta_poe = pinv(Jacob)*delta_gg6;
 % delta_poe = (Jacob'*Jacob)\(Jacob'*delta_gg6);
-error = norm(delta_gg6);
+error = norm(delta_gg6)/length(delta_gg6)*6;
 end

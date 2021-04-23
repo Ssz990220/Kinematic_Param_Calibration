@@ -35,7 +35,7 @@ error_init = error / counter;
 n_balls = 1;
 
 n_measure_each_ball = 32;
-
+rand_measure_pose = false;
 rand_pose = true;
 % For measure %
 r = 50;
@@ -55,8 +55,15 @@ for Iter = 1:n_iter
 T_balls = gen_ball_pos(n_balls);
 %% Generate measuring pose and measure data
 %     z_angle = z_angle_list(mod(iter,size(z_angle_list,2))+1);
-[Ts, p_measures] = gen_ball_measure_pos(T_balls, r,z_angle,10, n_measure_each_ball);
-
+if rand_measure_pose
+    [Ts, p_measures] = gen_ball_measure_pos(T_balls, r,z_angle,10, n_measure_each_ball);
+else
+    for i = 1:n_balls
+        row = 4;
+        column = 8;
+        [Ts(:,:,((i-1)*n_measure_each_ball+1):i*n_measure_each_ball),p_measures(:,((i-1)*n_measure_each_ball+1):i*n_measure_each_ball)] = gen_eye_calibration_pos(T_balls(:,:,i), r, row, column, z_angle, 10);
+    end
+end
 if visualize_hole
     view_holes(T_balls,100,true);
     view_measure_pose(Ts, p_measures, 100, false);

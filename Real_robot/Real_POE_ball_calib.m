@@ -10,7 +10,7 @@ filename = strcat(surfix,'robot_poe_init.mat');
 load(filename)
 robot_poe.T_tool = Tool_T;
 %% parameters
-n_balls = 1;
+n_balls = 2;
 n_measure_each_ball = 32;
 type = 1;
 threshold = 1e-11;

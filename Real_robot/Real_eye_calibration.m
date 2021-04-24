@@ -2,8 +2,8 @@ clear;
 clc;
 %% Specify folder
 % surfix = './experiment/experiment_0422/';      % Change this line to match the date and time
-surfix = './../../gocator_pcl/src/pcl_pub/results/0423_0.1mm/';
-for number = 1:4
+surfix = './../../gocator_pcl/src/pcl_pub/results/0423_0.1mm/target_ball_qs6/';
+for number = 1:13
 %% Load data--all in one
 filename = strcat(surfix,num2str(number),'.txt');                                    % Change this line to find the right file
 [p_measure, Ts] = read_real_measure_data(filename);

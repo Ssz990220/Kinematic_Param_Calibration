@@ -1,18 +1,21 @@
-clear;
-clc;
+% clear;
+% clc;
 %% Specify folder
-% surfix = './experiment/experiment_0422/';      % Change this line to match the date and time
-surfix = './../../gocator_pcl/src/pcl_pub/results/0423_0.1mm/target_ball_qs6/';
-for number = 1:13
+surfix = './experiment/experiment_0423/';      % Change this line to match the date and time
+
+for number = 1
 %% Load data--all in one
-filename = strcat(surfix,num2str(number),'.txt');                                    % Change this line to find the right file
+% filename = strcat(surfix,num2str(number),'.txt');                                    % Change this line to find the right file
+filename = strcat(surfix,'128_1_32_qs5.txt');
 [p_measure, Ts] = read_real_measure_data(filename);
 
 %% Initial Guess
 R_ = [-1,0,0;0,1,0;0,0,-1]';
 init = [R_,[0,0,370]';
         zeros(1,3),1];
-    
+
+%% Average to cancel noise
+[Ts, p_measure] = avg_ts_p(Ts, p_measure, 32);
 %% Solve
 Tool_T = hand_eye_calibration(Ts, p_measure,init);
 

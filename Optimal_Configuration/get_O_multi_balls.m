@@ -1,10 +1,9 @@
-function [error, delta_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measure, type, n_balls, n_measures_ball)
-%KINEMATIC_CALIBRATION_POE Summary of this function goes here
-%   Reference: ﻿Kinematic-parameter identification for serial-robot calibration based on POE formula
-%               A Self-Calibration Method for Robotic Measurement System Robot
-%   This is a hybird method of the two paper mentioned above.
-%   Param:
-n_points = size(qs,1);
+function O = get_O_multi_balls(qs_masked, p_measure_masked, n_balls, n_measures_ball, type)
+%GET_O Summary of this function goes here
+%   Detailed explanation goes here
+global robot_poe
+M = size(qs_masked, 1);
+n_points = size(qs_masked,1);
 x_measure = zeros([3,n_points]);
 if type == 2
     J = zeros(3,6*robot_poe.n_dof + 6,n_points);
@@ -14,10 +13,10 @@ elseif type == 3
     J = zeros(3,7*robot_poe.n_dof,n_points);
 end
 for i = 1:n_points
-    T = robot_poe.fkine(qs(i,:));
-    x_coor4 = T*[p_measure(:,i);1];
+    T = robot_poe.fkine(qs_masked(i,:));
+    x_coor4 = T*[p_measure_masked(:,i);1];
     x_measure(:,i) = x_coor4(1:3);
-    J_full = robot_poe.get_J(qs(i,:), type);
+    J_full = robot_poe.get_J(qs_masked(i,:), type);
     J(:,:,i) = [-skew(x_measure(:,i)),eye(3)]*J_full;
 end
 
@@ -43,7 +42,9 @@ for m = 1:n_balls
             base_idx = base_idx + n_measures_ball - i;
         end
 end
-delta_poe = pinv(G)*Delta_x;
-error = norm(Delta_x)/length(Delta_x);
+% info_matrix = G.'*G;
+% e = eig(info_matrix);
+s = svd(G);
+O = nthroot(prod(s),length(s))/M;
 end
 

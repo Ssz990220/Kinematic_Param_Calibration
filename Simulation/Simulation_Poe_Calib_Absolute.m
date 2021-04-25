@@ -24,23 +24,24 @@ for i = 1:n_test
     pose = rand(1,6);
     T1 = robot.fkine(pose).double();
     T2 = robot_poe.fkine(pose);
-    error = error + norm(T1-T2);
+    error_local = MatrixLog6(T1*TransInv(T2));
+    error = error + norm(error_local);
 end
 error_init = error / n_test;
 %% Calibration
 for t = 1:iter_times
     angle_list = 2*(rand([n_points,6])-0.5)*pi;
     Ts_true = robot.fkine(angle_list).double();
-    for i = 1:n_points
-        Ts_true(1:3,4,i) = Ts_true(1:3,4,i) + normrnd(0,0.03,1,3)';
-    end
+%     for i = 1:n_points
+%         Ts_true(1:3,4,i) = Ts_true(1:3,4,i) + normrnd(0,0.03,1,3)';
+%     end
     while ~calibration_done
         tic;
         Ts_nominal = zeros(size(Ts_true));
         for i = 1:n_points
             Ts_nominal(:,:,i) = robot_poe.fkine(angle_list(i,:));
         end
-        norm(mean(Ts_true - Ts_nominal,3));
+%         norm(mean(Ts_true - Ts_nominal,3));
         [error, delta_poe] = kinematic_calibration_poe_absolute(robot_poe, angle_list,Ts_true, Ts_nominal, n_points, type);
         old_links = robot_poe.links;
         old_gst = robot_poe.g_st_poe;
@@ -67,7 +68,8 @@ for i = 1:n_test
     pose = rand(1,6);
     T1 = robot.fkine(pose).double();
     T2 = robot_poe.fkine(pose);
-    error = error + norm(T1-T2);
+    error_local = MatrixLog6(T1*TransInv(T2));
+    error = error + norm(error_local);
 end
 error = error / n_test;
 

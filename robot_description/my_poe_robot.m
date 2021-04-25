@@ -123,6 +123,14 @@ classdef my_poe_robot < handle
                 T = T * MatrixExp6(VecTose3(obj.g_st_poe)) * obj.T_tool;
         end
         
+        function Ts = fkines(obj, qs)
+            n = size(qs, 1);
+            Ts = zeros(4,4,n);
+            for i = 1:n
+                Ts(:,:,i) = obj.fkine(qs(i,:));
+            end
+        end
+        
         function Jacob = get_J(obj, pose, type)
             % type 1: only joint parameter is calibrated
             % type 2: joint parameter and g_st0 are all calibrated

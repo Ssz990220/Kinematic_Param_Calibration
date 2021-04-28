@@ -157,7 +157,7 @@ classdef my_poe_robot < handle
                 if (type == 1) || (type == 2)
                     Jacob(:,6*(i-1)+1:6*i) = Ad * A;
                 elseif type == 3
-                    Jacob(:,7*(i-1)+1:7*i) = [Ad * A, obj.links(:,i)];
+                    Jacob(:,7*(i-1)+1:7*i) = Ad *[A, obj.links(:,i)];
                 end
             end
             if (type == 2)
@@ -203,40 +203,10 @@ classdef my_poe_robot < handle
                  for i = 1:obj.n_dof
                      angle_shift_update(i) = delta_poe(7*i);
                  end
-                 obj.angle_shift  = obj.angle_shift - angle_shift_update;
+                 obj.angle_shift  = obj.angle_shift + angle_shift_update;
              end
         end
     end
-        
-%         function q = ikine(obj, target)
-%             % target is represented in SE3
-%             % !!!!!!!!!!!!!!!!!!!!!!
-%             % this ikine function is specifically for ABB 4600-60/2.05
-%             inv_g_st = inv_SE3(target);
-%             g = target*inv_g_st;
-%             q(1) = atan2(g(2,4),g(1,4));
-%             % Use geometric method to solve q2 and q3
-%             l = sqrt(g(2,4)^2 + g(1,4)^2);
-%             dx = l-175;
-%             dy = g(3,4)-495;
-%             dl = sqrt(dx^2+dy^2);
-%             l1 =900;  l2 = sqrt(175^2+960^2);
-%             theta2 = acos((l1^2 + l2^2 - dl^2)/2*l1*l2);
-%             alpha = atan2(175, 960);
-%             if theta2 < 0
-%                 q(3) = pi + theta2 - pi/2 - alpha;
-%             else
-%                 q(3) = pi/2 + alpha - theta2;
-%             end
-%             beta = atan2(dy, dx);
-%             gamma = asin(l2*sin(abs(theta2))/dl);
-%             q(2) = beta + gamma - pi/2;
-%             
-%             % solve q456
-%             e1_3 = se3exp(obj.links(:,1),q(1))*se3exp(obj.links(:,2),q(2))*se3exp(obj.links(:,3),q(3));
-%             inv_e1_3 = inv_SE3(e1_3);
-%             
-%         end
 end
 
 function SE3 = se3exp(twist, theta)

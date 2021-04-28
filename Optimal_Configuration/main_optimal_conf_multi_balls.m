@@ -9,6 +9,7 @@ if length(n_measure_each_ball) == 1
     n_measure_each_ball = repmat(n_measure_each_ball,n_balls,1);
 end
 Best_O = get_O_multi_balls(qs(mask,:),p_measure(:,mask),n_balls, length(mask), type);
+fprintf('init pick is %.4f',Best_O);
 while j<= q
     while k < m
         skip = false;

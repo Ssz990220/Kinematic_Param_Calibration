@@ -45,6 +45,7 @@ end
 % info_matrix = G.'*G;
 % e = eig(info_matrix);
 s = svd(G);
-O = nthroot(prod(s),length(s))/M;
+r = sum(s > 1e-6);
+O = nthroot(prod(s),r)/M;
 end
 

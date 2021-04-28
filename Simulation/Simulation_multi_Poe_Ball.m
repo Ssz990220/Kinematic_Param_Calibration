@@ -10,7 +10,7 @@ R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
 
-robot_poe = my_poe_robot(T_tool, true, 0.001,0.01, true,0,0.1,false);
+robot_poe = my_poe_robot(T_tool, true, 0.001,0.01, true,0,0.05,false);
 %(T_tool, add_joint_shift, omega_shift_level, q_shift_level, add_base_shift, base_shift_omega, base_shift_q, add_angle_noise, angle_error_level, angle_error_decay)
 %% Initial Error
 error = 0;
@@ -38,7 +38,7 @@ error_init = error / counter;
 % For ball %
 n_balls = 1;
 
-n_measure_each_ball = 32;
+n_measure_each_ball = 128;
 rand_measure_pose = false;
 rand_pose = false;
 % For measure %
@@ -50,23 +50,27 @@ type = 1;
 noise_level = 0.015;
 add_noise = false;
 % repeat error
-repeat_error_level = 0.03;
-add_repeat_error = false;
+repeat_error_level = 0.015;
+add_repeat_error = true;
 % For visualization %
-visualize_hole = false; 
-visualize_pose = false;
+visualize_hole = true; 
+visualize_pose = true;
 n_iter = 1;
 
 for Iter = 1:n_iter
 %% Generate cube position
-T_balls = gen_ball_pos(n_balls);
+% T_balls = gen_ball_pos(n_balls);
+Ball_pos = [ 1533.78165281459,-14.4954655756398,1218.23109460511]';
+theta_ball = atan2(-Ball_pos(2),Ball_pos(1));
+R_ball = rotz(-theta_ball/pi*180);
+T_balls = [R_ball, Ball_pos;zeros(1,3),1];
 %% Generate measuring pose and measure data
 %     z_angle = z_angle_list(mod(iter,size(z_angle_list,2))+1);
 if rand_measure_pose
     [Ts, p_measures] = gen_ball_measure_pos(T_balls, r,z_angle,10, n_measure_each_ball);
 else
     for i = 1:n_balls
-        row =4;
+        row =16;
         column = 8;
         [Ts(:,:,((i-1)*n_measure_each_ball+1):i*n_measure_each_ball),p_measures(:,((i-1)*n_measure_each_ball+1):i*n_measure_each_ball)] = gen_eye_calibration_pos(T_balls(:,:,i), r, row, column, z_angle, 10);
     end

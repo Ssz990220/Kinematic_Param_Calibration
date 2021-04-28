@@ -1,16 +1,19 @@
 clear;
 clc;
 % Specify folder
-surfix = './experiment/';      % Change this line to match the date and time
+surfix = './experiment/experiment_0426/1448/';      % Change this line to match the date and time
 error = [];
-for number = 1:5
-Tool_T_path = strcat(surfix, 'Tool_t_qs',num2str(number),'.mat');                             % Change this line to save the data in the file you want
+for number = 1:1
+Tool_T_path = strcat(surfix, 'Tool_t_qs1.mat');                             % Change this line to save the data in the file you want
 load(Tool_T_path, 'Tool_T');
 
 % Load data--all in one
-filename = strcat(surfix,'eye_calib_qs (',num2str(number),').txt');                                    % Change this line to find the right file
-[p_measure, Ts] = read_real_measure_data(filename);
-
+% filename = strcat(surfix,'eye_calib_qs (',num2str(number),').txt');                                    % Change this line to find the right file
+% [p_measure, Ts] = read_real_measure_data(filename);
+filename = strcat(surfix,'p1.txt');
+p_measure = read_p_measure(filename);
+filename = strcat(surfix, 'ts_qs1.txt');
+[qs, Ts] = read_ts_qs(filename);
 % check error
 Ball_Pos = ball_pos(p_measure, Ts, Tool_T);
 Tool_T_record{number} = Tool_T;
@@ -32,4 +35,5 @@ error = [error;E];
 %     hold on
 % end
 end
-plot(error)
+error
+% plot(error)

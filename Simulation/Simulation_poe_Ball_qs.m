@@ -5,7 +5,7 @@ errors = [];
 n_times = 1;
 for i = 1:n_times
 %% Prepare robot
-surfix = './experiment/experiment_0423/'; 
+surfix = './experiment/experiment_0426/2207/'; 
 filename = strcat(surfix,'Tool_t_qs1.mat');   
 load(filename);
 robot = my_new_dh_robot(Tool_T);
@@ -45,13 +45,19 @@ n_measure_each_ball = 32;
 threshold = 1e-11;
 for Iter = 1:n_iter
 %% Generate cube position
-Ball_pos = [ 1533.78165281459,-14.4954655756398,1218.23109460511]';
-theta_ball = atan2(-Ball_pos(2),Ball_pos(1));
-R_ball = rotz(-theta_ball/pi*180);
-T_balls = [R_ball, Ball_pos;zeros(1,3),1];
+% Ball_pos = [ 1533.78165281459,-14.4954655756398,1218.23109460511]';
+% theta_ball = atan2(-Ball_pos(2),Ball_pos(1));
+% R_ball = rotz(-theta_ball/pi*180);
+% T_balls = [R_ball, Ball_pos;zeros(1,3),1];
+filename = strcat(surfix, 'T_balls.mat');
+load(filename, 'T_balls');
 %% measure qs
-filename = strcat(surfix,'qs5.txt');       
-qs = read_qs(filename);
+% filename = strcat(surfix,'ts_qs1.txt');       
+% [qs, ~] = read_ts_qs(filename);
+filename = strcat(surfix,'qs_rearrange_recheck.mat');
+load(filename);
+qs = qs_rearrange_recheck;
+qs = qs(1:60,:)/180*pi;
 %% Calculate P_measures
 n = size(qs,1);
 Ts_end = robot.fkine(qs).double();
@@ -69,6 +75,9 @@ end
 % offset = rand([1,6]) * 0.3;
 % offset_noise = repmat(offset, 32,1);
 % qs = qs + offset_noise;
+
+%% Optimal Config
+init_O = get_O_multi_balls(qs, p_measures, 1, 60, 1)
 %% Calibration
 iter = 1;
 while 1

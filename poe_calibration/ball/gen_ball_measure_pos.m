@@ -11,7 +11,7 @@ function [Ts,p_measure] = gen_ball_measure_pos(T0, r, z_angle,shift_level, n_mea
         add_repeat_error = false;
     end
     n_balls = size(T0,3);
-    angle_y = (45+15* rand(1,n_measures_ball*n_balls))/180*pi;             % rotate about y first, each row stays on the same angle
+    angle_y = (-45+90* rand(1,n_measures_ball*n_balls))/180*pi;             % rotate about y first, each row stays on the same angle
     angle_z = (rand(1,n_measures_ball*n_balls) - 0.5)*z_angle*2/180*pi;     % rotate about z after y, to make a turn 'horizontally'
     T_y = @(alpha_y)[cos(alpha_y),0,sin(alpha_y),0;
         0,1,0,0;

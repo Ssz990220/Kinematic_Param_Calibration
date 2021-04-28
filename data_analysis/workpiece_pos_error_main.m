@@ -2,15 +2,17 @@ clear;
 clc;
 % Specify folder
 % surfix = './experiment/';      % Change this line to match the date and time
-surfix = './../../gocator_pcl/src/pcl_pub/results/0423_0.1mm/';
+surfix = './../../gocator_pcl/src/pcl_pub/results/0426/';
+obj = 'cube';
 experiment_number = 5;
-batch_size = 14;
+batch_size = 1;
 for number = 1:batch_size
-Tool_T_path = strcat(surfix, 'target_ball_qs',num2str(experiment_number),'/Tool_t_qs',num2str(3),'.mat');                             % Change this line to save the data in the file you want
+Tool_T_path = strcat(surfix, 'target_ball_qs',num2str(experiment_number),'/Tool_t_qs',num2str(1),'.mat');                             % Change this line to save the data in the file you want
 load(Tool_T_path, 'Tool_T');
 
+surfix = './../../gocator_pcl/src/pcl_pub/results/0426/';
 % Load data--all in one
-filename = strcat(surfix,'cube/',num2str(number),'.txt');                                    % Change this line to find the right file
+filename = strcat(surfix,obj,'/',num2str(number),'.txt');                                    % Change this line to find the right file
 [p_measure, Ts] = read_real_measure_data(filename);
 
 % record data
@@ -18,9 +20,9 @@ filename = strcat(surfix,'cube/',num2str(number),'.txt');                       
 % error = std(Ball_Pos');
 end
 
-filename = strcat(surfix,'cube/Raw_Pos.mat');
+filename = strcat(surfix,obj,'/Raw_Pos.mat');
 save(filename,'Ball_Pos')
-save([surfix,'cube/Raw_Ts.mat'],'Ts_record')
+save([surfix,obj,'/Raw_Ts.mat'],'Ts_record')
 % error = [];
 % for number = 1:batch_size
 % number_sample = size(p_measure,2);

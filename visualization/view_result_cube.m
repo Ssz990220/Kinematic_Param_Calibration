@@ -2,13 +2,13 @@ clear;
 clc;
 % Specify folder
 % surfix = './experiment/';      % Change this line to match the date and time
-surfix = './../../gocator_pcl/src/pcl_pub/';
+surfix = './../../gocator_pcl/src/pcl_pub/results/0426/cube/';
 % experiment_number = 6;
-batch_size = 8;
-T_path = strcat(surfix,'results/0423_0.1mm/cube/Raw_Ts.mat');
+batch_size = 12;
+T_path = strcat(surfix,'Raw_Ts.mat');
 load(T_path, 'Ts_record');
 for number = 1:batch_size
-    filename = [surfix,'model/cube/',num2str(number),'.ply'];
+    filename = [surfix,num2str(number),'.ply'];
     ptCloud = pcread(filename);
     T = Ts_record{1}(:,:,number);
     tform = rigid3d(T');

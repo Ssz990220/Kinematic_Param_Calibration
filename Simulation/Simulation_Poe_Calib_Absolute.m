@@ -6,7 +6,7 @@ clear;
 clc;
 Tool = [eye(3),[0,0,100]';
         zeros(1,3),1];
-robot_poe = my_poe_robot(Tool, true, 0.001, 0.05, false, 0.05,20, true,0.2,2);
+robot_poe = my_poe_robot(Tool, true, 0.001, 0.05, false, 0.05,20, true,0.001,2);
 %% Prepare real robot
 robot = my_new_dh_robot(Tool);
 %% Calibration Hyperparameter

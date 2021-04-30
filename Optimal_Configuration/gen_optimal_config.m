@@ -1,4 +1,4 @@
-function [qs, T_balls, init_O] = gen_optimal_config(threshold)
+function [qs, T_balls, init_O, p_measures] = gen_optimal_config(threshold, robot_poe)
 %GEN_OPTIMAL_CONFIG Summary of this function goes here
 %   Detailed explanation goes here
 %% Random pose optimization
@@ -13,7 +13,7 @@ rand_pose = true;
 % For measure %
 r =10;
 z_angle = 45;
-shift_level = 50;
+shift_level = 30;
 % Generate cube position
 T_balls = gen_ball_pos(n_balls);
 if rand_measure_pose
@@ -28,8 +28,7 @@ end
 if Fail
     continue
 end
-
-init_O = get_O_multi_balls(qs, p_measures, 1, 64, 1);
+init_O = get_O_multi_balls(qs, p_measures, 1, 64, 1, robot_poe);
 fprintf('init_O is %.4f\n',init_O);
 end
 

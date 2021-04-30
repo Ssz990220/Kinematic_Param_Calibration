@@ -1,7 +1,6 @@
-function O = get_O_multi_balls(qs_masked, p_measure_masked, n_balls, n_measures_ball, type)
+function O = get_O_multi_balls(qs_masked, p_measure_masked, n_balls, n_measures_ball, type, robot_poe)
 %GET_O Summary of this function goes here
 %   Detailed explanation goes here
-global robot_poe
 M = size(qs_masked, 1);
 n_points = size(qs_masked,1);
 x_measure = zeros([3,n_points]);
@@ -29,17 +28,19 @@ elseif type == 3
     G = zeros(n_measures_ball*(n_measures_ball-1)*n_balls/2,7*robot_poe.n_dof);
 end
 m_n = n_measures_ball*(n_measures_ball-1)/2;
+counter = 1;
 for m = 1:n_balls
-        base_idx = 0;
+%         base_idx = 0;
         for i = 1:n_measures_ball
             for j = i+1 : n_measures_ball
-                Delta_x((m-1)*m_n+ base_idx + j - i) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
-    %             Delta_x((m-1)*m_n +base_idx + j - i) = norm(x_true(:,i) - x_true(:,j))- norm(x_measure(:,i) - x_measure(:,j));
-                G(((m-1)*m_n+base_idx + j - i),:) = 2 * (x_measure(:,(m-1)*n_measures_ball +i) - x_measure(:,(m-1)*n_measures_ball +j))'...
-                    *(J(:,:,(m-1)*n_measures_ball +i)-J(:,:,(m-1)*n_measures_ball +j));
-    %             G(((m-1)*m_n +base_idx + j - i),:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
+%                 Delta_x(counter) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
+                Delta_x(counter) = - norm(x_measure(:,i) - x_measure(:,j));
+%                 G(counter,:) = 2 * (x_measure(:,(m-1)*n_measures_ball +i) - x_measure(:,(m-1)*n_measures_ball +j))'...
+%                     *(J(:,:,(m-1)*n_measures_ball +i)-J(:,:,(m-1)*n_measures_ball +j));
+                G(counter,:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
+            counter = counter + 1;
             end
-            base_idx = base_idx + n_measures_ball - i;
+%             base_idx = base_idx + n_measures_ball - i;
         end
 end
 % info_matrix = G.'*G;

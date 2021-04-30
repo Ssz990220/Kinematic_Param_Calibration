@@ -4,8 +4,8 @@ function T_balls = gen_ball_pos(n_balls)
 
 T_balls = zeros(4,4,n_balls);
 theta_balls = (rand(1,n_balls) - 0.5) * 180;
-r_balls = rand(1,n_balls) * 400 + 800;
-z_balls = rand(1,n_balls) * 400 + 800;
+r_balls = rand(1,n_balls) * 900 + 400;
+z_balls = rand(1,n_balls) * 400 + 900;
 for i = 1:n_balls
     R = rotz(theta_balls(i));
     x = r_balls(i) * cos(theta_balls(i) / 180);

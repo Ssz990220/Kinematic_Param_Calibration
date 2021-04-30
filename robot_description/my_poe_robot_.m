@@ -206,29 +206,6 @@ classdef my_poe_robot < handle
                  obj.angle_shift  = obj.angle_shift + angle_shift_update;
              end
         end
-
-        function obj = initialize(obj, x, type)
-            cur_links = zeros(size(obj.links));
-            for i = 1:length(x)/6
-                cur_links(:,i) = x((i-1)*6+1:i*6);
-                cur_links(1:3,i) = cur_links(1:3,i)/norm(cur_links(1:3,i));
-                cur_links(4:6,i) = cur_links(4:6,i) - (cur_links(1:3,i)'*cur_links(4:6,i))/(cur_links(1:3,i)'*cur_links(1:3,i))*cur_links(1:3,i);
-            end
-            obj.links = cur_links; 
-            if type == 3
-                obj.angle_shift = x(6*obj.n_dof+1:7*obj.n_dof);
-            end
-        end
-        
-        function zeta = output(obj, type)
-            zeta = zeros(obj.n_dof * 6, 1);
-            for i = 1:obj.n_dof
-                zeta((i-1)*6 + 1 : i * 6) = obj.links(1:6, i);
-            end
-            if type == 3
-                zeta = [zeta;obj.angle_shift];
-            end
-        end
     end
 end
 

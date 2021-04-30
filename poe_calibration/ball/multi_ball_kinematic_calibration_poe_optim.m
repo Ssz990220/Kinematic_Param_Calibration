@@ -1,9 +1,19 @@
-function [error, robot_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measure, type, n_balls, n_measures_ball)
+function [fmin, robot_poe] = multi_ball_kinematic_calibration_poe_optim(robot_poe, qs, p_measure, type, n_balls, n_measures_ball)
 %KINEMATIC_CALIBRATION_POE Summary of this function goes here
 %   Reference: ﻿Kinematic-parameter identification for serial-robot calibration based on POE formula
 %               A Self-Calibration Method for Robotic Measurement System Robot
 %   This is a hybird method of the two paper mentioned above.
 %   Param:
+f = @(x) func_x(x,n_measures_ball,n_balls,qs,p_measure,type,robot_poe.T_tool);
+x0 = robot_poe.output(type);
+options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1e-3,'TolX',1e-2);
+[xmin,fmin] = fminsearch(f,x0, options);
+robot_poe.initialize(xmin, type);
+end
+
+function error = func_x(x,n_measures_ball,n_balls,qs,p_measure,type, T_tool)
+robot_poe = my_poe_robot(T_tool);
+robot_poe.initialize(x, type);
 n_points = size(qs,1);
 x_measure = zeros([3,n_points]);
 if type == 2
@@ -45,7 +55,6 @@ for m = 1:n_balls
 %             base_idx = base_idx + n_measures_ball - i;
         end
 end
-delta_poe = pinv(G)*Delta_x;
 error = mean(abs(Delta_x));
-robot_poe.update_poe(delta_poe*0.02, type);
+% error = norm(Delta_x)/length(Delta_x);
 end

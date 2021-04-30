@@ -53,7 +53,7 @@ function [Ts,p_measure, qs, Fail] = gen_ball_measure_pos_collision_check(T0, r, 
                     end
                 end
                 close all;
-                if ~detect_between_robot_environment(q/pi*180,0,ball_pos)                
+                if ~collision_check(q/pi*180,0,ball_pos)                
                     Ts(:,:,(n-1)*n_measures_ball + i) = T;
                     qs(i + (n-1) * n_measures_ball,:) = q;
                     p_measure(:,(n-1)*n_measures_ball + i) = [0,0,r]'+ pos_shift;

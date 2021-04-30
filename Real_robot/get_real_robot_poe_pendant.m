@@ -1,7 +1,6 @@
-function get_real_robot_poe_pendant(Ts, qs)
+function robot_poe = get_real_robot_poe_pendant(Ts, qs, robot_poe)
 %GET_REAL_ROBOT_POE_PENDANT Summary of this function goes here
 %   Detailed explanation goes here
-global robot_poe
 counter = 0;
 type = 2;
 n_points = size(Ts,3);

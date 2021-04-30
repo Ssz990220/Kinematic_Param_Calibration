@@ -7,16 +7,18 @@ clear;
 clc;
 robot_poe = my_poe_robot(eye(4), false,0,0, false,0,0);
 %%
-surfix = './experiment/experiment_0423/';
+surfix = './experiment/experiment_0428/';
 %% Prepare real robot data
-filename = strcat(surfix,'qs5.txt');
-angle_list = read_qs(filename);
+% [angle_list, Ts_true] = read_ts_qs(filename);
+% angle_list = read_qs(filename);
 % angle_list = repmat(angle_list, 4,1);
 % Ts_true = read_real_robot_pos('./experiment/experiment_0329/hand_eye_calibration_1614/endT_data.txt');
-filename = strcat(surfix,'128_1_32_qs5.txt');
-[~, Ts_true] = read_real_measure_data(filename);
-Ts_true = avg_ts(Ts_true, 32);
+% filename = strcat(surfix,'128_1_32_qs5.txt');
+% [~, Ts_true] = read_real_measure_data(filename);
+% Ts_true = avg_ts(Ts_true, 32);
 % Ts_true = Ts_true(:,:,1:32);
+filename = strcat(surfix, 'O40.txt');
+[p_measures,Ts_true, angle_list] = read_all_in_one(filename);
 
 %% Calibration Hyperparameter
 n_points = size(Ts_true,3);
@@ -48,5 +50,5 @@ while ~calibration_done
 end
 
 %% Save
-save ./experiment/experiment_0422/robot_poe_init.mat robot_poe
+save ./experiment/experiment_0428/robot_poe_init.mat robot_poe
 

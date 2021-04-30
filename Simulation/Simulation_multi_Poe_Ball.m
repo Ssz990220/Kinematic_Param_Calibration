@@ -10,7 +10,7 @@ R_ = [-1,0,0;0,1,0;0,0,-1]';
 T_tool= [R_,[0,0,370]';
         zeros(1,3),1];
 
-robot_poe = my_poe_robot(T_tool, true, 0.001,0.01, true,0,0.05,false);
+robot_poe = my_poe_robot(T_tool, true, 0.001,0.01, true,0,0.05,true, 0.001,1);
 %(T_tool, add_joint_shift, omega_shift_level, q_shift_level, add_base_shift, base_shift_omega, base_shift_q, add_angle_noise, angle_error_level, angle_error_decay)
 %% Initial Error
 error = 0;
@@ -45,7 +45,7 @@ rand_pose = false;
 r =10;
 z_angle = 45;
 threshold = 1e-11;
-type = 1;
+type = 3;
 % noise %
 noise_level = 0.015;
 add_noise = false;
@@ -53,8 +53,8 @@ add_noise = false;
 repeat_error_level = 0.015;
 add_repeat_error = true;
 % For visualization %
-visualize_hole = true; 
-visualize_pose = true;
+visualize_hole = false; 
+visualize_pose = false;
 n_iter = 1;
 
 for Iter = 1:n_iter

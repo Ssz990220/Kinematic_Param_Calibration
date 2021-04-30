@@ -1,4 +1,4 @@
-function [error, delta_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measure, type, n_balls, n_measures_ball)
+function [error, robot_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measure, type, n_balls, n_measures_ball)
 %KINEMATIC_CALIBRATION_POE Summary of this function goes here
 %   Reference: ﻿Kinematic-parameter identification for serial-robot calibration based on POE formula
 %               A Self-Calibration Method for Robotic Measurement System Robot
@@ -30,20 +30,22 @@ elseif type == 3
     G = zeros(n_measures_ball*(n_measures_ball-1)*n_balls/2,7*robot_poe.n_dof);
 end
 m_n = n_measures_ball*(n_measures_ball-1)/2;
+counter = 1;
 for m = 1:n_balls
-        base_idx = 0;
+%         base_idx = 0;
         for i = 1:n_measures_ball
             for j = i+1 : n_measures_ball
-                Delta_x((m-1)*m_n+ base_idx + j - i) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
-    %             Delta_x((m-1)*m_n +base_idx + j - i) = norm(x_true(:,i) - x_true(:,j))- norm(x_measure(:,i) - x_measure(:,j));
-                G(((m-1)*m_n+base_idx + j - i),:) = 2 * (x_measure(:,(m-1)*n_measures_ball +i) - x_measure(:,(m-1)*n_measures_ball +j))'...
-                    *(J(:,:,(m-1)*n_measures_ball +i)-J(:,:,(m-1)*n_measures_ball +j));
-    %             G(((m-1)*m_n +base_idx + j - i),:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
+%                 Delta_x(counter) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
+                Delta_x(counter) = - norm(x_measure(:,i) - x_measure(:,j));
+%                 G(counter,:) = 2 * (x_measure(:,(m-1)*n_measures_ball +i) - x_measure(:,(m-1)*n_measures_ball +j))'...
+%                     *(J(:,:,(m-1)*n_measures_ball +i)-J(:,:,(m-1)*n_measures_ball +j));
+                G(counter,:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
+            counter = counter + 1;
             end
-            base_idx = base_idx + n_measures_ball - i;
+%             base_idx = base_idx + n_measures_ball - i;
         end
 end
 delta_poe = pinv(G)*Delta_x;
-error = norm(Delta_x)/length(Delta_x);
+error = mean(abs(Delta_x));
+robot_poe.update_poe(delta_poe*0.02, type);
 end
-

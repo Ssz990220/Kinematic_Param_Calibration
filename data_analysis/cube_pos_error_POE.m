@@ -1,47 +1,43 @@
-clear;
+clear;close all;
 clc;
-% Specify folder
-% surfix = './experiment/';      % Change this line to match the date and time
-surfix = './../../gocator_pcl/src/pcl_pub/results/0426/';
-obj = 'cube';
+
+obj = 'cube_measure';
 experiment_number = 5;
-batch_size = 1;
-for number = 1:batch_size
-Tool_T_path = strcat(surfix, 'target_ball_qs',num2str(experiment_number),'/Tool_t_qs',num2str(1),'.mat');                             % Change this line to save the data in the file you want
+batch_size = 8;
+surfix = './../../gocator_pcl/src/pcl_pub/results/0429/';
+Tool_T_path = strcat(surfix, 'Tool_T3.mat');
 load(Tool_T_path, 'Tool_T');
 
-surfix = './../../gocator_pcl/src/pcl_pub/results/0426/';
+robot_poe = my_poe_robot(eye(4));
+x_path = strcat(surfix, 'x3.mat');
+load(x_path, 'x');
+robot_poe.initialize(x);
+
+real_path = strcat(surfix,obj, '/real.mat');
+load(real_path, 'real');
+
+for number = 1:batch_size
+surfix = './../../gocator_pcl/src/pcl_pub/results/0429/';
 % Load data--all in one
 filename = strcat(surfix,obj,'/',num2str(number),'.txt');                                    % Change this line to find the right file
-[p_measure, Ts] = read_real_measure_data(filename);
+[qs,~,p_measure] = read_data(filename);
+
+Ts = robot_poe.fkines(qs);
 
 % record data
 [Ball_Pos{number},Ts_record{number}] = ball_pos(p_measure, Ts, Tool_T);
+[err{number},err2{number},distance_matrix] = check_error(Ball_Pos{number},real);
 % error = std(Ball_Pos');
 end
+sample_size = size(err2{1},2);
 
-filename = strcat(surfix,obj,'/Raw_Pos.mat');
+filename = strcat(surfix,obj,'/Raw_Pos_POE.mat');
 save(filename,'Ball_Pos')
-save([surfix,obj,'/Raw_Ts.mat'],'Ts_record')
-% error = [];
-% for number = 1:batch_size
-% number_sample = size(p_measure,2);
-% E = 0;
-% counter = 0;
-% for i=1:number_sample
-%     for j=(i+1):number_sample
-%         E = E + norm(Ball_Pos{number}(:,i)-Ball_Pos{number}(:,j));
-%         counter = counter+1;
-%     end
-% end
-% E = E/counter;
-% error = [error;E];
-% end
-% error
+save([surfix,obj,'/Raw_Ts_POE.mat'],'Ts_record')
 
-Pos = zeros(3,8);
+Pos = zeros(size(Ball_Pos{1}));
 test = zeros(1,batch_size);
-for k = 1:8
+for k = 1:size(Pos,2)
     error_count = 0;
     for j = 1:3
         for i = 1:batch_size
@@ -71,4 +67,10 @@ for i = 1:3
     end
 %     legend(labels)
 end
+
+[err,err2,distance_matrix] = check_error(Pos(:,1:8),real(:,1:8));
+sum(abs(err2),2)/8
+
+filename = strcat(surfix,obj,'/filtered_Pos_POE.mat');
+save(filename,'Pos')
 

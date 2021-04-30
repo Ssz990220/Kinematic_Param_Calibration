@@ -8,4 +8,3 @@ fclose(file);
 p_measures = data(9:11,:);
 Ts = convert_real_robot_pos(data(2:8,:)');
 end
-

@@ -1,4 +1,4 @@
-tic;detect_between_robot_environment([0 0 0 0 0 0],0,[1000 1000 1000]);toc;
+tic;detect_between_robot_environment(qs_rearrange1(46,:),1,[1.260147667106186e+03 3.038377471166253e+02 1.247603116162018e+03]);toc;
 function iscollide=detect_between_cuboid_cylinder(cuboid,cylinder_, is_visul)
 if (is_visul==1)
     visulizaiton1(cuboid,cylinder_);
@@ -512,6 +512,20 @@ end_cuboid_ini_node=[[eye(3),[1.28+h;0+l/2;1.57+w/2];0 0 0 1],[eye(3),[1.28+h;0+
 end_cuboid_node=exp_fkine(w_all,q_all,end_cuboid_ini_node,theta_all);end_cuboid_node=end_cuboid_node(1:3,4:4:32);
 end_cuboid_node=end_cuboid_node(:,[1 5 3 2]);
 % gocator用更精细的长方体包络，得到运动后的8个顶点的位置
+% gocator_range_vertices=[[1546.91 -49.06 1373.83 1];[1546.88 49.03 1373.85 1];[1590.95 -74.01 1356.65 1];[1590.87 73.85 1356.69 1];[1641.21 -76.85 1337.45 1];[1641.24 76.54 1337.44 1];[1590.00 -76.04 1248.67 1];[1589.94 76.43 1248.57 1];[1548.10 74.03 1282.31 1];[1511.40 49.34 1311.58 1];[1510.93 -48.63 1311.73 1];[1548.04 -73.75 1281.54 1]]'/1000;
+gocator_range_vertices=[[1689.63 76.87 1621.65];[1636.52 74.03 1613.11];[1590.02 49.25 1606.08];[1589.83 49.15 1534.04];[1636.63 74.03 1526.90];[1689.64 76.88 1518.47];[1589.76 -49.11 1605.96];[1589.73 -49.10 1533.97]	;[1636.44 -74.00 1613.14];[1636.35 -73.96 1527.51];[1689.01 -76.84 1519.32];[1689.60 -76.87 1621.68]]'/1000;
+g0_all=[[eye(3),gocator_range_vertices(1:3,1);0,0,0,1],[eye(3),gocator_range_vertices(1:3,2);0,0,0,1],[eye(3),gocator_range_vertices(1:3,3);0,0,0,1],[eye(3),gocator_range_vertices(1:3,4);0,0,0,1],[eye(3),gocator_range_vertices(1:3,5);0,0,0,1],[eye(3),gocator_range_vertices(1:3,6);0,0,0,1],[eye(3),gocator_range_vertices(1:3,7);0,0,0,1],[eye(3),gocator_range_vertices(1:3,8);0,0,0,1],[eye(3),gocator_range_vertices(1:3,9);0,0,0,1],[eye(3),gocator_range_vertices(1:3,10);0,0,0,1],[eye(3),gocator_range_vertices(1:3,11);0,0,0,1],[eye(3),gocator_range_vertices(1:3,12);0,0,0,1]];
+gocator_range_vertices2=exp_fkine(w_all,q_all,g0_all,[theta_all(1) theta_all(2) theta_all(3) theta_all(4) theta_all(5) theta_all(6)]);
+gocator_range_vertices2=gocator_range_vertices2(1:3,4:4:48);
+%% 第一点五步：检测关节角度下的包络体是否包住球体
+% pos_of_sphere=[1000 1000 1000];
+scatter3(gocator_range_vertices2(1,:),gocator_range_vertices2(2,:),gocator_range_vertices2(3,:));hold on
+scatter3(pos_of_sphere(1)/1000,pos_of_sphere(2)/1000,pos_of_sphere(3)/1000);
+axis equal
+if check_range_over(gocator_range_vertices2, pos_of_sphere/1000)==1
+    iscollide=1;
+    return;
+end
 %% 障碍物建模：
 % ob_cuboid1=[[1.6;-0.2;0.5],[0.6;-0.2;0.5],[1.6;-0.3;0.5],[1.6;-0.2;1]];
 % ob_cuboid2=[[1.6;0.2;0.5],[0.6;0.2;0.5],[1.6;0.1;0.5],[1.6;0.2;1]]+[0;0.05;0];
@@ -520,12 +534,12 @@ a=pos_of_sphere(1);b=pos_of_sphere(2);c=pos_of_sphere(3);
 ob_cly1=[[a;b;0],[a;b;c],[150;0;0]]/1000;
 ob_cuboid1=[[-300;1100;450],[-300;1100+700;450],[-300+1000;1100;450],[-300;1100;0]]/1000;
 ob_cuboid2=[[-940;-2000;0],[-940+500;-2000;0],[-940;-2000+4000;0],[-940;-2000;400]]/1000;
-ob_cuboid3=[[-900;-2000;0],[-900+3000;-2000;0],[-900;-2000+700;0],[-900;-2000;2000]]/1000;
-ob_cuboid4=[[2000;-2000;0],[2000+100;-2000;0],[2000;-2000+4000;0],[2000;-2000;2000]]/1000;
-ob_cuboid5=[[-900;-2000;2000],[-900+3000;-2000;2000],[-900;-2000+4000;2000],[-900;-2000;2000+100]]/1000;
+ob_cuboid3=[[-900;-2000;0],[-900+3000;-2000;0],[-900;-2000+700;0],[-900;-2000;2000+500]]/1000;      % 增高
+ob_cuboid4=[[2000;-2000;0],[2000+100;-2000;0],[2000;-2000+4000;0],[2000;-2000;2000+500]]/1000;      % 增高
+ob_cuboid5=[[-900;-2000;2000],[-900+3000;-2000;2000],[-900;-2000+4000;2000],[-900;-2000;2000+100]]/1000+[0;0;0.5];
 ob_cuboid6=[[-900;-2000;-100],[-900+3000;-2000;-100],[-900;-2000+4000;-100],[-900;-2000;0]]/1000;
-ob_cuboid7=[[-940;2000;0],[-940+3000;2000;0],[-940;2000+100;0],[-940;2000;2000]]/1000;
-ob_cuboid8=[[-1040;-2000;0],[-1040+100;-2000;0],[-1040;-2000+4000;0],[-1040;-2000;2000]]/1000;
+ob_cuboid7=[[-940;2000;0],[-940+3000;2000;0],[-940;2000+100;0],[-940;2000;2000+500]]/1000;          % 增高
+ob_cuboid8=[[-1040;-2000;0],[-1040+100;-2000;0],[-1040;-2000+4000;0],[-1040;-2000;2000+500]]/1000;  % 增高
 %%
 % ob_environment=[ob_cuboid1,ob_cuboid2,ob_cuboid3];index_environment=[1;1;1];
 ob_environment=[ob_cly1,ob_cuboid1,ob_cuboid2,ob_cuboid3,ob_cuboid4,ob_cuboid5,ob_cuboid6,ob_cuboid7,ob_cuboid8];index_environment=[0;1;1;1;1;1;1;1;1];
@@ -595,5 +609,34 @@ isoverrange=0;
 if theta(1)<-180||theta(1)>180||theta(2)>150||theta(2)<-90||theta(3)>75||theta(3)<-180||theta(4)<-180||theta(4)>180||theta(5)>120||theta(5)<-125||theta(6)>180||theta(6)<-180
     isoverrange=1;
     return
+end
+end
+function israngeok = check_range_over(vertices, point)
+faces_all=[[3 7 8 1];[3 4 5 6];[5 2 1 3];[1 6 11 4];[11 12 9 1];[9 10 8 1];[9 3 1 4];[4 6 10 3]];
+for i=1:8
+    temp_jude=jude_face(vertices(:,faces_all(i,1:3)),vertices(:,faces_all(i,4)),point);
+    if temp_jude==1
+        israngeok=1;
+        return
+    end
+end
+israngeok=0;
+end
+function temp_jude=jude_face(vertices,dir,point)
+A=vertices(:,1)';%A,B,C的坐标由自己定义。
+B=vertices(:,2)';
+C=vertices(:,3)';
+syms x y z
+D1=[ones(4,1),[dir';A;B;C]];%由空间解析几何的内容知道D的行列式等于零就是平面方程。
+D2=[ones(4,1),[point;A;B;C]];
+d=det([ones(4,1),[[0 0 0];A;B;C]]);
+a=det([ones(4,1),[[1 0 0];A;B;C]]);
+b=det([ones(4,1),[[0 1 0];A;B;C]]);
+c=det([ones(4,1),[[0 0 1];A;B;C]]);
+dist=det(D2)/norm([a b c]);
+if det(D1)*det(D2)>0&&abs(dist)>0.015
+    temp_jude=0;
+else
+    temp_jude=1;
 end
 end

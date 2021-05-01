@@ -4,14 +4,40 @@ function [fmin, robot_poe] = multi_ball_kinematic_calibration_poe_optim(robot_po
 %               A Self-Calibration Method for Robotic Measurement System Robot
 %   This is a hybird method of the two paper mentioned above.
 %   Param:
-f = @(x) func_x(x,n_measures_ball,n_balls,qs,p_measure,type,robot_poe.T_tool);
+tmp_poe = robot_poe;
+f = @(x) func_x(x,n_measures_ball,n_balls,qs,p_measure,type,tmp_poe);
 x0 = robot_poe.output(type);
-options = optimset('Display','iter','PlotFcns',@optimplotfval,'TolFun',1e-3,'TolX',1e-2);
+options = optimset('Display','final','PlotFcns',@optimplotfval,'TolFun',1e-3,'TolX',1e-2);
 [xmin,fmin] = fminsearch(f,x0, options);
 robot_poe.initialize(xmin, type);
 end
 
-function error = func_x(x,n_measures_ball,n_balls,qs,p_measure,type, T_tool)
+function error = func_x(x,n_measures_ball,n_balls,qs,p_measure,type, tmp_poe)
+tmp_poe.initialize(x, type);
+n_points = size(qs,1);
+x_measure = zeros([3,n_points]);
+for i = 1:n_points
+    T = tmp_poe.fkine(qs(i,:));
+    x_coor4 = T*[p_measure(:,i);1];
+    x_measure(:,i) = x_coor4(1:3);
+end
+
+Delta_x = zeros(n_measures_ball*(n_measures_ball-1)*n_balls/2,1);
+counter = 1;
+for m = 1:n_balls
+        for i = 1:n_measures_ball
+            for j = i+1 : n_measures_ball
+%                 Delta_x(counter) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
+                Delta_x(counter) = - norm(x_measure(:,i) - x_measure(:,j));
+                counter = counter + 1;
+            end
+        end
+end
+error = mean(abs(Delta_x));
+% error = norm(Delta_x)/length(Delta_x);
+end
+
+function grad = func_g(x,n_measures_ball,n_balls,qs,p_measure,type, T_tool)
 robot_poe = my_poe_robot(T_tool);
 robot_poe.initialize(x, type);
 n_points = size(qs,1);
@@ -50,11 +76,11 @@ for m = 1:n_balls
 %                 G(counter,:) = 2 * (x_measure(:,(m-1)*n_measures_ball +i) - x_measure(:,(m-1)*n_measures_ball +j))'...
 %                     *(J(:,:,(m-1)*n_measures_ball +i)-J(:,:,(m-1)*n_measures_ball +j));
                 G(counter,:) = (x_measure(:,i)-x_measure(:,j))'*(J(:,:,i)-J(:,:,j))/norm(x_measure(:,i)-x_measure(:,j));
-            counter = counter + 1;
+                counter = counter + 1;
             end
 %             base_idx = base_idx + n_measures_ball - i;
         end
 end
-error = mean(abs(Delta_x));
+grad = pinv(G) * Delta_x;
 % error = norm(Delta_x)/length(Delta_x);
 end

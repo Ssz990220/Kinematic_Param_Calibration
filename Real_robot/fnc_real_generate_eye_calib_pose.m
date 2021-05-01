@@ -1,4 +1,4 @@
-function qs_measure_reorder = fnc_real_generate_eye_calib_pose(T_obj, robot_last_joint_pose, r, row, column, z_angle, shift_level)
+function [qs_measure_reorder, Ball_pos] = fnc_real_generate_eye_calib_pose(T_obj, robot_last_joint_pose, r, row, column, z_angle, shift_level)
 %FNC_REAL_GENERATE_EYE_ Summary of this function goes here
 %   Parameters:     T_obj: Ball position in tool frame measured by structure light camera
 %                          robot_last_joint_pose: Spacial posture of the end joint of robot in x-y-z, unit quatinion
@@ -29,7 +29,9 @@ for i = 2:size(Ts,3)
     qs_measure(i,:) = exp_ikine(Ts(:,:,i),qs_measure(i-1,:)',2)';
 end
 %% Visualizing to validate
-view_measure_pose(Ts,p_measure,1);
+Ts_mm = Ts;
+Ts_mm(1:3,4,:) = Ts_mm(1:3,4,:)*1000;
+view_measure_pose(Ts_mm,p_measure,1);
 qs_measure_reorder = ZigZag(qs_measure,row,column);
 qs_measure_reorder = qs_measure_reorder * 180 / pi;
 end

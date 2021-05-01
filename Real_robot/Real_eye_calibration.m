@@ -1,19 +1,19 @@
 % clear;
 % clc;
 %% Specify folder
-surfix = './experiment/experiment_0426/1448/';      % Change this line to match the date and time
+surfix = './experiment/experiment_0430/';      % Change this line to match the date and time
 
 for number = 1
 %% Load data--all in one
 % filename = strcat(surfix,num2str(number),'.txt');                                    % Change this line to find the right file
 % filename = strcat(surfix,'128_1_32_qs5.txt');
 % [p_measure, Ts] = read_real_measure_data(filename);
-filename = strcat(surfix,'p1.txt');
-p_measure = read_p_measure(filename);
+% filename = strcat(surfix,'p1.txt');
+% p_measure = read_p_measure(filename);
 % p_measure = p_measure(:,1:32);
-filename = strcat(surfix,'ts_qs1.txt');
-[qs, Ts] = read_ts_qs(filename);
-    
+filename = strcat(surfix,'eye_calib_64.txt');
+% [qs, Ts] = read_ts_qs(filename);
+[p_measure,Ts, qs] = read_all_in_one(filename);
 % Ts = Ts(:,:,1:32);
 %% Initial Guess
 R_ = [-1,0,0;0,1,0;0,0,-1]';

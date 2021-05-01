@@ -9,7 +9,7 @@ if length(n_measure_each_ball) == 1
     n_measure_each_ball = repmat(n_measure_each_ball,n_balls,1);
 end
 Best_O = get_O_multi_balls(qs(mask,:),p_measure(:,mask),n_balls, length(mask), type, robot_poe);
-fprintf('init pick is %.4f',Best_O);
+fprintf('init pick is %.4f\n',Best_O);
 while j<= q
     while k < m
         skip = false;
@@ -38,7 +38,7 @@ while j<= q
             end
         end
     end
-    O_k = get_O_multi_balls(qs(mask,:), p_measure(:,mask), n_balls, length(mask), type);
+    O_k = get_O_multi_balls(qs(mask,:), p_measure(:,mask), n_balls, length(mask), type, robot_poe);
     if O_k > Best_O
         Best_O = O_k;
         qs_mask = mask;

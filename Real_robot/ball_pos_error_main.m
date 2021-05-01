@@ -8,7 +8,7 @@ for number = 1:1
 % Load data--all in one
 % filename = strcat(surfix,'eye_calib_qs (',num2str(number),').txt');                                    % Change this line to find the right file
 % [p_measure, Ts] = read_real_measure_data(filename);
-Tool_T_path = './experiment/DATA/0428/Tool_t_E0290_clean.mat';                             % Change this line to save the data in the file you want
+Tool_T_path = './experiment/DATA/0501/Non_Optimized_O/Tool_t_E0229_clean5.mat';                             % Change this line to save the data in the file you want
 load(Tool_T_path, 'Tool_T');
 filename = strcat(surfix,'O40.txt');
 % p_measure = read_p_measure(filename);
@@ -21,7 +21,7 @@ filename = strcat(surfix,'O40.txt');
 % [p_measure,Ts] = read_real_measure_data(filename);
 %% Load POE
 robot_poe = my_poe_robot(eye(4));
-filename = './experiment/DATA/0428/x_E0290_clean.mat';
+filename = './experiment/DATA/0501/Non_Optimized_O/x_E0229_clean5.mat';
 load(filename);
 robot_poe.initialize(x, 1);
 % load robot_poe.mat

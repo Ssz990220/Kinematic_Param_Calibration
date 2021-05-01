@@ -1,4 +1,4 @@
-function iscollide = collision_check(theta_all,is_visul,pos_of_sphere)
+function iscollide = collision_check(theta_all,is_visul,pos_of_sphere, r)
 %% 第零步：检测关节角度是否符合基本范围
 if check_theta(theta_all)==1
     iscollide=1;
@@ -44,7 +44,7 @@ gocator_range_vertices2=gocator_range_vertices2(1:3,4:4:48);
 % scatter3(gocator_range_vertices2(1,:),gocator_range_vertices2(2,:),gocator_range_vertices2(3,:));hold on
 % scatter3(pos_of_sphere(1)/1000,pos_of_sphere(2)/1000,pos_of_sphere(3)/1000);
 % axis equal
-if check_range_over(gocator_range_vertices2, pos_of_sphere/1000)==1
+if check_range_over(gocator_range_vertices2, pos_of_sphere/1000, r)==1
     iscollide=1;
     return;
 end
@@ -611,10 +611,10 @@ if theta(1)<-180||theta(1)>180||theta(2)>150||theta(2)<-90||theta(3)>75||theta(3
     return
 end
 end
-function israngeok = check_range_over(vertices, point)
+function israngeok = check_range_over(vertices, point, r)
 faces_all=[[3 7 8 1];[3 4 5 6];[5 2 1 3];[1 6 11 4];[11 12 9 1];[9 10 8 1];[9 3 1 4];[4 6 10 3]];
 for i=1:8
-    temp_jude=jude_face(vertices(:,faces_all(i,1:3)),vertices(:,faces_all(i,4)),point);
+    temp_jude=jude_face(vertices(:,faces_all(i,1:3)),vertices(:,faces_all(i,4)),point, r);
     if temp_jude==1
         israngeok=1;
         return
@@ -622,7 +622,7 @@ for i=1:8
 end
 israngeok=0;
 end
-function temp_jude=jude_face(vertices,dir,point)
+function temp_jude=jude_face(vertices,dir,point, r)
 A=vertices(:,1)';%A,B,C的坐标由自己定义。
 B=vertices(:,2)';
 C=vertices(:,3)';
@@ -634,7 +634,7 @@ a=det([ones(4,1),[[1 0 0];A;B;C]]);
 b=det([ones(4,1),[[0 1 0];A;B;C]]);
 c=det([ones(4,1),[[0 0 1];A;B;C]]);
 dist=det(D2)/norm([a b c]);
-if det(D1)*det(D2)>0&&abs(dist)>0.015
+if det(D1)*det(D2)>0&&abs(dist)>r
     temp_jude=0;
 else
     temp_jude=1;

@@ -16,7 +16,7 @@ function H = hand_eye_calibration(Ts,p_measure, init, display_mode)
     % with constraints ||a||=1, ||n|| = 1, ||o||=1
     %                               a'*n=0, n'*o=0, o'*a=0;
     if nargin < 4
-        mode = 'iter';
+        mode = 'none';
     else
         mode = display_mode;
     end

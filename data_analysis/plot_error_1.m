@@ -31,13 +31,13 @@ function [norm1,norm2] = plot_error_1(Ball_Pos,err2,real,figure_title,is_graph,i
         err2_avg = err2_avg/batch_size;
 
         for i = 1:batch_size
-            plot(sqrt(sum(err2{i}.^2,1)))
+            plot(1:sample_size,sqrt(sum(err2{i}.^2,1)),'--')
             hold on
         end
-        plot(sqrt(sum(err2_avg.^2,1)),'LineWidth',1.5)
-        plot(1:sample_size,norm2*ones(1,sample_size),'--r','LineWidth',1.5)
+        plot(1:sample_size,sqrt(sum(err2_avg.^2,1)),'LineWidth',1.5)
+        plot(1:sample_size,norm2*ones(1,sample_size),'--r','LineWidth',3)
         axis([0 9 0 1])
-        xlabel('numbers');ylabel('norm error/mm')
+        xlabel('hole numbers');ylabel('norm error/mm')
         title(figure_title)
         legend('batch 1','batch 2','batch 3','batch 4','average','error level')
     end

@@ -11,8 +11,8 @@ function [norm1,norm2] = plot_error(Ball_Pos,err2,real,figure_title,is_graph)
             end
             [A,TF] = rmoutliers(test);
             if any(TF)
-    %             disp(['batch ',num2str(i),' outliers at dim ',num2str(j),' on number ',num2str(k)])
-    %             disp(test(TF))
+%                 disp(['batch ',num2str(i),' outliers at dim ',num2str(j),' on number ',num2str(k)])
+%                 disp(test(TF))
                 error_count = error_count+length(test(TF));
             end
             Pos(j,k) = mean(A);
@@ -21,7 +21,6 @@ function [norm1,norm2] = plot_error(Ball_Pos,err2,real,figure_title,is_graph)
     end
 
     if is_graph
-        figure()
         title(figure_title)
         subplot(4,1,1)
         title(figure_title)
@@ -66,10 +65,10 @@ function [norm1,norm2] = plot_error(Ball_Pos,err2,real,figure_title,is_graph)
             end
         %     legend(labels)
         end
-    end
     title(figure_title)
+    end
 
-    [err,err2,distance_matrix] = check_error(Pos(:,[1:8]),real(:,[1:8]));
-    norm1 = sum(abs(err2),2)/8;
+    [err,err2,distance_matrix] = check_error(Pos,real);
+    norm1 = sum(abs(err2),2)/sample_size;
     norm2 = norm(sum(abs(err2),2)/8);
 end

@@ -1,24 +1,27 @@
 clear;close all;clc;
 surfix = './../../gocator_pcl/src/pcl_pub/results/';
-robot = {'raw','TP','POE','hybrid','072','0229'};
-obj = {'car','car_ver','car_var','car_var_avg'};
-batch_size = [15,5,6,4];
+robot = {'raw','TP','POE','hybrid'};
+obj = {'car_hor','car_ver','car_var','car_avg','cube'};
+batch_size = [15,5,6,4,8];
 
-real_path = strcat(surfix, '/real.mat');
-load(real_path, 'real');
-
-for i = 1:6 % robot
-    for j = 1:4 % obj
+for i = 1:4 % robot
+    for j = 1:5 % obj
         Tool_T_path = strcat(surfix, 'Tool_T_',robot{i},'.mat');
         load(Tool_T_path, 'Tool_T');
 
         robot_poe = my_poe_robot(eye(4));
-        if any(i == [3,4,5,6])
+        if any(i == [3,4])
             x_path = strcat(surfix, 'x_',robot{i},'.mat');
             load(x_path, 'x');
             robot_poe.initialize(x);
         end
         
+        real_path = strcat(surfix, '/real.mat');
+        load(real_path, 'real');
+        if j == 5
+            real_path = strcat(surfix, '/real_cube.mat');
+            load(real_path, 'real');
+        end
         mask = [];
         count = 0;
         Ball_Pos = [];

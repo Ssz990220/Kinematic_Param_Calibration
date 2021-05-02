@@ -2,7 +2,7 @@ clear;close all;clc;
 surfix = './../../gocator_pcl/src/pcl_pub/results/';
 robot = {'raw','TP','POE','hybrid'};
 obj = {'car_hor','car_ver','car_var','car_avg','cube'};
-batch_size = [15,5,6,4,8];
+batch_size = [4,4,4,4,4];
 
 for i = 1:4 % robot
     for j = 1:5 % obj

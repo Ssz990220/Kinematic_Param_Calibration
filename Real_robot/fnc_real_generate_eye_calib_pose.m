@@ -22,6 +22,8 @@ T_ball = [R_ball, Ball_pos;zeros(1,3),1];
 %% Generate Measuring Pose
 [Ts,p_measure] = gen_eye_calibration_pos(T_ball, r, row, column, z_angle, shift_level);
 % qs_measure = robot_with_tool.ikine(Ts);
+% view_holes(T_ball,5,1);
+% view_measure_pose(Ts,p_measure, 5, false)
 qs_measure = zeros(size(Ts,3),6);
 Ts(1:3,4,:) = Ts(1:3,4,:)/1000;
 qs_measure(1,:) = exp_ikine(Ts(:,:,1),zeros(6,1),2)';

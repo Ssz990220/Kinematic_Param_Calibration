@@ -7,7 +7,7 @@ function [resnorm, robot_poe] = multi_ball_kinematic_calibration_poe_lsq(robot_p
 tmp_poe = robot_poe;
 f = @(x) func_x(x,n_measures_ball,n_balls,qs,p_measure,type, tmp_poe);
 x0 = robot_poe.output(type);
-options = optimoptions('lsqnonlin','StepTolerance',8e-7,'Display','none','PlotFcns','optimplotresnorm','MaxFunctionEvaluations',7200);%,'SpecifyObjectiveGradient',true,'CheckGradients',true);
+options = optimoptions('lsqnonlin','StepTolerance',8e-7,'Display','iter-detailed','PlotFcns','optimplotresnorm','MaxFunctionEvaluations',5400);%,'SpecifyObjectiveGradient',true,'CheckGradients',true);
 [xmin,resnorm] = lsqnonlin(f,x0,[],[],options);
 robot_poe.initialize(xmin, type);
 resnorm = resnorm/(n_measures_ball * (n_measures_ball - 1)/2);

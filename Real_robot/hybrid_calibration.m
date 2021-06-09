@@ -7,6 +7,7 @@ Optimized_O = false;
 save_all = true;
 with_TP = false;
 alg = 'lsq';
+iter_times = 9;
 %% prepare data
 surfix = './experiment/DATA/0428/'; 
 filename = strcat(surfix, 'O40.txt');
@@ -61,14 +62,20 @@ mkdir(dirname);
 %% Init save
 if save_all
     x = robot_poe.output(type);
-    filename = strcat(save_path,'x_clean0.mat');
+    tmp_poe = robot_poe;
+    error = get_error(x,n_measure_each_ball,n_balls,qs,p_measures,type, tmp_poe);
+    error = round(error * 1000);
+%     filename = strcat(save_path,'x_clean0.mat');
+%     save(filename, 'x');
+%     filename = strcat(save_path,'Tool_t_clean0.mat');
+%     save(filename, 'Tool_T');
+    filename = strcat(save_path,TP, sprintf('x_E%d_clean0.mat',error));
     save(filename, 'x');
-    filename = strcat(save_path,'Tool_t_clean0.mat');
+    filename = strcat(save_path,TP, sprintf('Tool_t_E%d_clean0.mat',error));
     save(filename, 'Tool_T');
 end
 
 %% Iterational Update
-iter_times = 5;
 for i = 1:iter_times
     if Optimized_O
         tic;
@@ -119,4 +126,30 @@ if ~save_all
     filename = strcat(save_path, TP, sprintf('Tool_t_E0%d_clean.mat',error));
     save(filename, 'Tool_T');
     disp(strcat('Save to file ',filename));
+end
+
+
+function error = get_error(x,n_measures_ball,n_balls,qs,p_measure,type, tmp_poe)
+tmp_poe.initialize(x, type);
+n_points = size(qs,1);
+x_measure = zeros([3,n_points]);
+for i = 1:n_points
+    T = tmp_poe.fkine(qs(i,:));
+    x_coor4 = T*[p_measure(:,i);1];
+    x_measure(:,i) = x_coor4(1:3);
+end
+
+Delta_x = zeros(n_measures_ball*(n_measures_ball-1)*n_balls/2,1);
+counter = 1;
+for m = 1:n_balls
+        for i = 1:n_measures_ball
+            for j = i+1 : n_measures_ball
+%                 Delta_x(counter) = - norm(x_measure(:,(m-1)*n_measures_ball + i) - x_measure(:,(m-1)*n_measures_ball +j))^2;
+                Delta_x(counter) = - norm(x_measure(:,i) - x_measure(:,j));
+                counter = counter + 1;
+            end
+        end
+end
+error = mean(abs(Delta_x));
+% error = norm(Delta_x)/length(Delta_x);
 end

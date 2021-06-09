@@ -48,7 +48,7 @@ threshold = 1e-11;
 type = 3;
 % noise %
 noise_level = 0.015;
-add_noise = false;
+add_noise = true;
 % repeat error
 repeat_error_level = 0.015;
 add_repeat_error = true;
@@ -118,16 +118,15 @@ end
 iter = 1;
 while 1
     tic;
-    [error, delta_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measures, type, n_balls, n_measure_each_ball);
     old_links = robot_poe.links;
     old_gst = robot_poe.g_st_poe;
-    robot_poe.update_poe(delta_poe, type);
+    [error, robot_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs, p_measures, type, n_balls, n_measure_each_ball);
     time = toc;
     link_update = max(max(abs(old_links - robot_poe.links)));
     gst_update = max(abs(old_gst - robot_poe.g_st_poe));
     fprintf('Iteration %d \t takes time %.4f,\t error is %.12f \t links update is %.10f \t g_st update is %.10f \n',[iter, time, error, link_update, gst_update]);
     iter = iter + 1;
-    if error < threshold || ( iter > 50) || (link_update < 1e-11) 
+    if error < threshold || ( iter > 200) || (link_update < 1e-11) 
         break
     end
 end

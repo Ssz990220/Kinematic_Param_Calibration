@@ -5,11 +5,11 @@ robot_last_joint_pose = [1306.53,152.515,1474.83,0.368703,0.0970936,0.892093,-0.
 %% Generate pose
 % parameters are: T_obj, robot_last_joint_pose, r, row, column, z_angle, shift_level
 % check fnc_real_generate_eye_calib_pose for detialed info
-[qs_measure, ball_pos] = fnc_real_generate_eye_calib_pose(T_obj, robot_last_joint_pose, 10, 8, 8, 30, 10);
+[qs_measure, ball_pos] = fnc_real_generate_eye_calib_pose(T_obj, robot_last_joint_pose, 20, 4, 4, 30, 0);
 %% Visualizing to validate
 robot = my_new_dh_robot();
 % figure
-% robot_view_generate_pose(robot, qs_measure/180*pi);
+robot_view_generate_pose(robot, qs_measure/180*pi);
 %% Collision Detection
 close all;
 figure

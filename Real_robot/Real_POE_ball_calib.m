@@ -19,7 +19,8 @@ n_balls = 1;
 type = 1;
 threshold = 1e-11;
 %% Prepare measuring pose and measure data
-filename = strcat(surfix, 'O40.txt');
+% filename = strcat(surfix, 'O40.txt');
+filename ='./experiment/DATA/0428/O40.txt';   
 [p_measures,Ts, qs] = read_all_in_one(filename);
 n_measure_each_ball = size(p_measures, 2);
 %% Optimal Configuration
@@ -30,16 +31,18 @@ mask = 1:n_measure_each_ball;
 %% Calibration
 iter = 1;
 % qs = qs + ones(size(qs)) * 1e-2;
+errors = [];
 while 1
     tic;
     old_links = robot_poe.links;
     old_gst = robot_poe.g_st_poe;
-    [error, robot_poe] = multi_ball_kinematic_calibration_poe_lsq(robot_poe, qs(mask,:), p_measures(:,mask), type, n_balls, length(mask));
+    [error, robot_poe] = multi_ball_kinematic_calibration_poe(robot_poe, qs(mask,:), p_measures(:,mask), type, n_balls, length(mask));
     time = toc;
     link_update = max(max(abs(old_links - robot_poe.links)));
     gst_update = max(abs(old_gst - robot_poe.g_st_poe));
     fprintf('Iteration %d \t takes time %.4f,\t error is %.12f \t links update is %.10f \t g_st update is %.10f \n',[iter, time, error, link_update, gst_update]);
     iter = iter + 1;
+    errors = [errors, error];
     if error < threshold || ( iter > 1000) %|| (link_update < 1e-11) || error < 0.023
         break
     end

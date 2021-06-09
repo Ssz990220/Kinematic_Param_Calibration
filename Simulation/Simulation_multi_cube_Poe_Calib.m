@@ -10,10 +10,10 @@ robot_poe = my_poe_robot(T_tool, true, 0.005,0.01, false,0.001,0.2,false);
 
 %% parameters
 % For cube position %
-dis_holes = 40;
-n_holes_each_line = 3;
-n_cubes = 4;
-measure_times = 6;
+dis_holes = 50;
+n_holes_each_line = 4;
+n_cubes = 1;
+measure_times = 1;
 rand_pose = true;
 % For measure %
 r = 50;
@@ -22,11 +22,11 @@ threshold = 1e-11;
 type = 1;
 % noise %
 noise_level = 0.01;
-add_noise = true;
+add_noise = false;
 % For visualization %
 visualize_hole = false;
 visualize_pose = false;
-n_iter = 3;
+n_iter = 1;
 for iter = 1:n_iter
 %% Generate cube position
 edge_length = dis_holes * (n_holes_each_line + 1);
@@ -49,8 +49,8 @@ T_holes = cubes_array.get_all_Ts();
 %     z_angle = z_angle_list(mod(iter,size(z_angle_list,2))+1);
 [Ts, p_measures] = gen_cubic_measure_pos(cubes_array, r,z_angle,10);
 if visualize_hole
-    view_holes(T_holes,100,true);
-    view_measure_pose(Ts, p_measures, 100, false);
+    view_holes(T_holes,10,true);
+    view_measure_pose(Ts, p_measures, 10, false);
 end
 % robot.plot(zeros(1,6));
 %% ikine
@@ -97,29 +97,50 @@ for i = 1:n_test
 end
 error_init = error / n_test;
 
+
+%% Initaial POE
+x = robot_poe.output(1);
+
 %% Add noise
 if add_noise
     noise = normrnd(0, noise_level, size(p_measures));
-    p_measures = p_measures + noise;
+    p_measures_ = p_measures + noise;
+else
+    p_measures_ = p_measures;
 end
-%% Calibration
+% Calibration
+robot_poe = robot_poe.initialize(x,1);
+errors = [error_init];
 iter = 1;
 while 1
     tic;
-    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures, x_true, type, n_holes_cube, n_cubes, measure_times);
+    [error, delta_poe] = multi_kinematic_calibration_poe(robot_poe, qs, p_measures_, x_true, type, n_holes_cube, n_cubes, measure_times);
     old_links = robot_poe.links;
     old_gst = robot_poe.g_st_poe;
     robot_poe.update_poe(delta_poe, type);
     time = toc;
     link_update = max(max(abs(old_links - robot_poe.links)));
     gst_update = max(abs(old_gst - robot_poe.g_st_poe));
+    %Test
+    error = 0;
+    n_test = 100;
+    for i = 1:n_test
+        pose = rand(1,6);
+        T1 = robot.fkine(pose).double();
+        T2 = robot_poe.fkine(pose);
+        error_local = MatrixLog6(T1*TransInv(T2));
+        error = error + norm(error_local);
+    end
+    error = error / n_test;
+    %record
+    errors = [errors,error];
     fprintf('Iteration %d \t takes time %.4f,\t error is %.12f \t links update is %.10f \t g_st update is %.10f \n',[iter, time, error, link_update, gst_update]);
     iter = iter + 1;
     if error < threshold || ( iter > 50) || (link_update < 1e-9) 
         break
     end
 end
-%% Validation
+% Validation
 error = 0;
 n_test = 100;
 for i = 1:n_test

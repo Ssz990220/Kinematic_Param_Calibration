@@ -49,3 +49,37 @@ delta_poe = pinv(G)*Delta_x;
 error = norm(delta_poe);
 end
 
+
+
+function lambda = AG()
+
+end
+
+function G = get_G(n_cube, n_holes_cube, n_measures, G, m_n, x_measure, J)
+    for m = 1:n_cube
+        for t = 1:n_measures
+            base_idx = 0;
+            for i = 1:n_holes_cube
+                for j = i+1 : n_holes_cube
+                    G(((m-1)*m_n +(t-1) * m_t+base_idx + j - i),:) = 2 * (x_measure(:,(m-1)*n_holes_cube +i) - x_measure(:,(m-1 + (t-1)*n_cube)*n_holes_cube +j))'*(J(:,:,(m-1)*n_holes_cube +i)-J(:,:,(m-1+ (t-1)*n_cube)*n_holes_cube +j));
+                end
+            end
+            base_idx = base_idx + n_holes_cube - i;
+        end
+    end
+end
+
+
+function Delta_x = get_Delta_x(n_cube, n_holes_cube, n_measures, Delta_x, m_n, x_measure, x_true)
+    for m = 1:n_cube
+        for t = 1:n_measures
+            base_idx = 0;
+            for i = 1:n_holes_cube
+                for j = i+1 : n_holes_cube
+                    Delta_x((m-1)*m_n +(t-1) * m_t + base_idx + j - i) = - norm(x_measure(:,(m-1)*n_holes_cube + i) - x_measure(:,(m-1 + (t-1)*n_cube)*n_holes_cube +j))^2 + norm(x_true(:,(m-1)*n_holes_cube +i)-x_true(:,(m-1 + (t-1)*n_cube)*n_holes_cube +j))^2;
+                end
+            end
+            base_idx = base_idx + n_holes_cube - i;
+        end
+    end
+end

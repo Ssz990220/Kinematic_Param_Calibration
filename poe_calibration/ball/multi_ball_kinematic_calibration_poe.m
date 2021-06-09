@@ -47,5 +47,5 @@ for m = 1:n_balls
 end
 delta_poe = pinv(G)*Delta_x;
 error = mean(abs(Delta_x));
-robot_poe.update_poe(delta_poe*0.02, type);
+robot_poe.update_poe(delta_poe*0.01, type);
 end
